@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LSPD Central Database - Node 04</title>
+    <style>
+        :root {
+            --amber: #ffb000;
+            --amber-bright: #ffc44d;
+            --amber-dim: #7c5600;
+            --amber-ghost: #261a00;
+            --bg-deep: #050402;
+            --bezel: #1a1a1a;
+            --alert-red: #881337;
+        }
+
+        body {
+            background-color: #000;
+            color: var(--amber);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0; padding: 10px;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; overflow: hidden;
+        }
+
+        .monitor {
+            background: var(--bezel);
+            padding: 20px;
+            border-radius: 40px;
+            border-bottom: 15px solid #000;
+            box-shadow: 0 50px 100px rgba(0,0,0,1);
+            width: 1455px;
+            max-width: 98vw;
+            position: relative;
+        }
+
+        .screen {
+            background-color: var(--bg-deep);
+            border: 15px solid #0a0a0a;
+            border-radius: 10px;
+            height: 90vh;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 80px rgba(0,0,0,1);
+        }
+
+        .screen::after {
+            content: " "; display: block; position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            z-index: 100; background-size: 100% 3px, 3px 100%; pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.95; } }
+
+        .sidebar {
+            width: 320px;
+            border-right: 2px dashed var(--amber-dim);
+            padding: 20px;
+            background: #080602;
+            font-size: 0.78rem;
+            overflow-y: auto;
+            z-index: 5;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+            overflow-y: auto;
+            z-index: 5;
+            gap: 18px; /* Clean spacing between sections */
+        }
+
+        #bootLoader {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 3000; padding: 40px; color: #fff;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+
+        /* Grouped Terminal Sections for Readability */
+        .terminal-zone {
+            border: 1px dashed var(--amber-dim);
+            padding: 15px;
+            background: rgba(10, 8, 4, 0.4);
+            position: relative;
+        }
+
+        .zone-label {
+            position: absolute;
+            top: -8px; left: 15px;
+            background: var(--bg-deep);
+            padding: 0 8px;
+            font-size: 0.65rem;
+            color: var(--amber-dim);
+            letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        /* Action Grid Split by Category Headers */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px 10px;
+            padding-top: 5px;
+        }
+
+        .grid-category-header {
+            grid-column: span 4;
+            font-size: 0.65rem;
+            color: var(--amber-dim);
+            border-bottom: 1px solid var(--amber-ghost);
+            padding-bottom: 2px;
+            margin-top: 5px;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+        }
+
+        .action-item {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+        }
+
+        .action-item label {
+            margin-bottom: 0;
+            cursor: pointer;
+            color: var(--amber);
+        }
+
+        input[type="checkbox"] {
+            appearance: none;
+            width: 14px; height: 14px;
+            border: 1px solid var(--amber-dim);
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        input[type="checkbox"]:checked {
+            border-color: var(--amber);
+            background: var(--amber-ghost);
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: "■";
+            color: var(--amber-bright);
+            position: absolute;
+            top: -2px; left: 1px;
+            font-size: 11px;
+        }
+
+        .printer-out {
+            background: #fdfdfd;
+            color: #111;
+            padding: 40px;
+            margin-top: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            font-family: 'Courier', monospace;
+            white-space: pre-wrap;
+            transform: translateY(100%);
+            display: none;
+            line-height: 1.4;
+        }
+
+        @keyframes paperFeed {
+            0% { transform: translateY(100%); }
+            100% { transform: translateY(0); }
+        }
+
+        .printing-active {
+            display: block;
+            animation: paperFeed 4s steps(60) forwards;
+        }
+
+        .tab-bar { display: flex; gap: 8px; }
+        .tab { 
+            padding: 8px 20px; border: 1px solid var(--amber-dim); cursor: pointer; 
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .tab.active { background: var(--amber); color: #000; font-weight: bold; border-color: var(--amber); }
+
+        label { display: block; font-size: 0.7rem; color: var(--amber-bright); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
+        
+        input[type="text"], textarea, select {
+            background: #000; border: 1px solid var(--amber-dim);
+            color: var(--amber); font-family: inherit; padding: 10px; width: 100%; box-sizing: border-box;
+            line-height: 1.4;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--amber-bright);
+            background: rgba(20, 14, 5, 0.5);
+        }
+
+        .btn {
+            background: var(--amber); color: #000; border: none; padding: 12px 24px;
+            font-weight: bold; cursor: pointer; text-transform: uppercase; font-family: inherit; letter-spacing: 1px;
+        }
+        .btn:hover { background: #fff; }
+
+        .btn-toggle {
+            background: transparent; color: var(--amber-dim); border: 1px solid var(--amber-dim);
+            padding: 4px 10px; font-size: 0.65rem; cursor: pointer; text-transform: uppercase; font-family: inherit;
+        }
+        .btn-toggle:hover { color: var(--amber); border-color: var(--amber); }
+
+        .lexicon-item { margin-bottom: 15px; border-left: 2px solid var(--amber-dim); padding-left: 10px; }
+        .lexicon-item div { color: #555; text-decoration: line-through; font-size: 0.7rem; }
+        .lexicon-item span { color: #fff; display: block; font-weight: bold; margin-top: 2px; }
+    </style>
+</head>
+<body>
+
+<div class="monitor">
+    <div class="screen">
+        
+        <div id="bootLoader">
+            <p id="boot1">> LSPD AMIBIOS (C) 1994 American Megatrends</p>
+            <p id="boot2">> Memory Check: 640KB OK</p>
+            <p id="boot3">> Initializing Comm Link... [SECURE]</p>
+            <p id="boot4">> Loading STATION_04_DRIVERS...</p>
+            <p id="boot5" style="color:var(--amber)">> ACCESS GRANTED. WELCOME BACK, OFFICER PORTER.</p>
+        </div>
+
+        <div id="loginScreen" style="position:absolute; width:100%; height:100%; background:var(--bg-deep); z-index:2000; display:none; flex-direction:column; justify-content:center; align-items:center;">
+            <div style="border:1px solid var(--amber); padding:30px; width:300px; text-align:center;">
+                <p>[ LSPD SECURE NODE ]</p>
+                <input type="text" id="offName" placeholder="OFFICER NAME" value="LEVI PORTER" style="margin-bottom:10px;">
+                <input type="text" id="unitID" placeholder="UNIT NUMBER" value="1A-37" style="margin-bottom:15px;">
+                <button class="btn" style="width:100%" onclick="finishLogin()">INITIALIZE</button>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <h3 style="margin-top:0; border-bottom:1px solid var(--amber); padding-bottom:5px;">SYNTAX LEXICON</h3>
+            <div class="lexicon-item"><div>I saw him</div> <span>"Observed suspect on scene"</span></div>
+            <div class="lexicon-item"><div>He ran away</div> <span>"Suspect fled on foot"</span></div>
+            <div class="lexicon-item"><div>I caught him</div> <span>"Suspect apprehended"</span></div>
+            <div class="lexicon-item"><div>Checking car</div> <span>"Conducted vehicle search"</span></div>
+            <div class="lexicon-item"><div>He was mad</div> <span>"Suspect was uncooperative"</span></div>
+            <div class="lexicon-item"><div>Looking around</div> <span>"Area canvassed"</span></div>
+            <div class="lexicon-item"><div>Cop car</div> <span>"Patrol unit"</span></div>
+            <div class="lexicon-item"><div>Found a gun</div> <span>"Firearm recovered"</span></div>
+            <div class="lexicon-item"><div>He was high</div> <span>"Showed signs of impairment"</span></div>
+        </div>
+
+        <div class="main-content">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <span id="userDisplay" style="font-size:0.75rem; color:var(--amber-dim); font-weight:bold;">NODE: STATION_04 | AUTH: ---</span>
+                    <button type="button" class="btn-toggle" onclick="toggleLexicon()">[ Toggle Lexicon ]</button>
+                </div>
+                <select id="rankSel" style="width:auto; font-size:0.75rem; padding:5px;">
+                    <optgroup label="Command Staff">
+                        <option value="[Commissioner]">Commissioner (🦅)</option>
+                        <option value="[Deputy Commissioner]">Deputy Commissioner (➖)</option>
+                        <option value="[Chief of Police]">Chief of Police (⭐⭐⭐⭐)</option>
+                        <option value="[Commander]">Commander (⭐)</option>
+                    </optgroup>
+                    <optgroup label="Supervisory Staff">
+                        <option value="[Captain]">Captain (|||)</option>
+                        <option value="[Lieutenant]">Lieutenant (||)</option>
+                        <option value="[Sergeant II]">Sergeant II (👮⚡)</option>
+                        <option value="[Sergeant]">Sergeant (👮)</option>
+                    </optgroup>
+                    <optgroup label="Field Operations">
+                        <option value="[Police Officer III]">Officer III (▼)</option>
+                        <option value="[Police Officer II]">Officer II (▽)</option>
+                        <option value="[Police Officer I]" selected>Officer I (✕)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="tab-bar">
+                <div class="tab active" onclick="setTab('ARREST', this)">Arrest</div>
+                <div class="tab" onclick="setTab('CITATION', this)">Citation</div>
+                <div class="tab" onclick="setTab('INCIDENT', this)">Incident</div>
+                <div class="tab" onclick="setTab('MISSING', this)">Missing Person</div>
+            </div>
+
+            <div id="dynamicFields"></div>
+
+            <div class="terminal-zone">
+                <span class="zone-label">MODULE II: CASE DATA ENTRY</span>
+                <label>Narrative / Event Summary:</label>
+                <textarea id="narrative" rows="5" placeholder="At approximately..."></textarea>
+
+                <label style="margin-top: 10px;">Evidence Log (Each item on a new line):</label>
+                <textarea id="evidence" rows="2" placeholder="e.g. 1x Glock 17 base model&#10;2x Spent bullet casings"></textarea>
+            </div>
+
+            <div class="terminal-zone">
+                <span class="zone-label">MODULE III: SYSTEM PROCEDURES INDEX</span>
+                <div class="actions-grid" id="actionsMatrix">
+                    
+                    <div class="grid-category-header">CUSTODY & ESCALATION</div>
+                    <div class="action-item"><input type="checkbox" id="a1" value="Miranda Read"><label for="a1">Miranda Read</label></div>
+                    <div class="action-item"><input type="checkbox" id="a2" value="Suspect Detained"><label for="a2">Detained</label></div>
+                    <div class="action-item"><input type="checkbox" id="a3" value="Foot Pursuit"><label_for="a3">Foot Pursuit</label_for=></div>
+                    <div class="action-item"><input type="checkbox" id="a4" value="Vehicle Pursuit"><label for="a4">Veh. Pursuit</label></div>
+                    <div class="action-item"><input type="checkbox" id="a5" value="Felony Stop"><label for="a5">Felony Stop</label></div>
+                    <div class="action-item"><input type="checkbox" id="a6" value="Backup Requested"><label for="a6">Backup Req.</label></div>
+                    <div class="action-item"><input type="checkbox" id="a7" value="Air Support Req."><label for="a7">Air Support</label></div>
+                    <div class="action-item"><input type="checkbox" id="a8" value="Warrant Checked"><label for="a8">Warrant Check</label></div>
+
+                    <div class="grid-category-header">TACTICAL FORCE RESPONSES</div>
+                    <div class="action-item"><input type="checkbox" id="b1" value="Weapon Drawn"><label for="b1">Weapon Drawn</label></div>
+                    <div class="action-item"><input type="checkbox" id="b2" value="Taser Deployed"><label for="b2">Taser Deployed</label></div>
+                    <div class="action-item"><input type="checkbox" id="b3" value="Less-Lethal Used"><label for="b3">Less-Lethal</label></div>
+                    <div class="action-item"><input type="checkbox" id="b4" value="Canine Deployed"><label for="b4">K9 Deployed</label></div>
+                    <div class="action-item"><input type="checkbox" id="b5" value="Spike Strips"><label for="b5">Spike Strips</label></div>
+                    <div class="action-item"><input type="checkbox" id="b6" value="PIT Executed"><label for="b6">PIT Maneuver</label></div>
+
+                    <div class="grid-category-header">SEARCH & SEIZURE PROPERTIES</div>
+                    <div class="action-item"><input type="checkbox" id="c1" value="Vehicle Search"><label for="c1">Veh. Search</label></div>
+                    <div class="action-item"><input type="checkbox" id="c2" value="Person Searched"><label for="c2">Person Search</label></div>
+                    <div class="action-item"><input type="checkbox" id="c3" value="Narcotics Seized"><label for="c3">Drugs Seized</label></div>
+                    <div class="action-item"><input type="checkbox" id="c4" value="Firearm Recovered"><label for="c4">Gun Recovered</label></div>
+                    <div class="action-item"><input type="checkbox" id="c5" value="Vehicle Towed"><label for="c5">Veh. Impounded</label></div>
+                    <div class="action-item"><input type="checkbox" id="c6" value="Scene Secured"><label for="c6">Scene Secured</label></div>
+
+                    <div class="grid-category-header">ADMINISTRATIVE & FORENSICS</div>
+                    <div class="action-item"><input type="checkbox" id="d1" value="Breathalyzer Used"><label for="d1">Breathalyzer</label></div>
+                    <div class="action-item"><input type="checkbox" id="d2" value="GSR Test Taken"><label for="d2">GSR Test</label></div>
+                    <div class="action-item"><input type="checkbox" id="d3" value="DNA Sample Taken"><label for="d3">DNA Sample</label></div>
+                    <div class="action-item"><input type="checkbox" id="d4" value="Fingerprints Taken"><label for="d4">Fingerprints</label></div>
+                    <div class="action-item"><input type="checkbox" id="d5" value="EMS Contacted"><label for="d5">EMS Called</label></div>
+                    <div class="action-item"><input type="checkbox" id="d6" value="Warning Issued"><label for="d6">Verbal Warn</label></div>
+                    <div class="action-item"><input type="checkbox" id="d7" value="Citation Issued"><label for="d7">Citation Out</label></div>
+                    <div class="action-item"><input type="checkbox" id="d8" value="Photos Taken"><label for="d8">Photos Taken</label></div>
+                    <div class="action-item"><input type="checkbox" id="d9" value="Bodycam Uploaded"><label for="d9">Bodycam Up</label></div>
+                    <div class="action-item"><input type="checkbox" id="d10" value="Supervisor Notified"><label for="d10">Supervisor</label></div>
+                </div>
+            </div>
+
+            <div>
+                <label>Additional Procedures Required:</label>
+                <input type="text" id="addActions" placeholder="e.g. Forwarded to Traffic Division units...">
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn" style="flex:2" onclick="printReport()">📠 PRINT OFFICIAL REPORT</button>
+                <button class="btn" style="background:#222; color:var(--amber); border:1px solid var(--amber-dim);" onclick="location.reload()">SYSTEM REBOOT</button>
+            </div>
+
+            <div id="printerContainer" style="overflow:hidden;">
+                <div id="outputPaper" class="printer-out"></div>
+            </div>
+            
+            <button id="copyBtn" class="btn" style="width:100%; display:none; margin-bottom: 20px;" onclick="copyReport()">📋 COPY TO CLIPBOARD INTERFACE</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let currentTab = "ARREST";
+    let offName = "";
+    let unitID = "";
+
+    function playTick() {
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.frequency.setValueAtTime(440, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.03, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + 0.04);
+    }
+
+    function playPrinterSound() {
+        let now = audioCtx.currentTime;
+        for(let i=0; i<25; i++) {
+            let t = now + (i*0.14);
+            let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
+            o.type = 'square'; o.frequency.setValueAtTime(950 + (Math.random()*150), t);
+            g.gain.setValueAtTime(0.01, t); g.gain.linearRampToValueAtTime(0, t+0.1);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(t); o.stop(t+0.1);
+        }
+    }
+
+    window.onload = function() {
+        setTimeout(() => document.getElementById('boot2').style.display='block', 500);
+        setTimeout(() => document.getElementById('boot3').style.display='block', 1000);
+        setTimeout(() => document.getElementById('boot4').style.display='block', 1500);
+        setTimeout(() => document.getElementById('boot5').style.display='block', 2000);
+        setTimeout(() => {
+            document.getElementById('bootLoader').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }, 3000);
+    };
+
+    function finishLogin() {
+        offName = document.getElementById('offName').value.toUpperCase();
+        unitID = document.getElementById('unitID').value.toUpperCase();
+        document.getElementById('userDisplay').innerText = `NODE: STATION_04 | AUTH: ${offName} (${unitID})`;
+        document.getElementById('loginScreen').style.display = 'none';
+        setTab('ARREST', document.querySelector('.tab'));
+        playTick();
+    }
+
+    function toggleLexicon() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.style.display = (sidebar.style.display === 'none') ? 'block' : 'none';
+        playTick();
+    }
+
+    function setTab(type, el) {
+        currentTab = type;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        el.classList.add('active');
+        playTick();
+        const container = document.getElementById('dynamicFields');
+        container.innerHTML = '';
+
+        if(type === 'INCIDENT' || type === 'MISSING') {
+            container.innerHTML = `
+                <div class="terminal-zone">
+                    <span class="zone-label">MODULE I: INVOLVED PARTIES LIST</span>
+                    <div id="peopleList"></div>
+                    <button type="button" class="btn" style="padding:5px 12px; font-size:0.65rem; background:#151006; color:var(--amber); border:1px solid var(--amber-dim);" onclick="addPersonRow()">+ Add Person File</button>
+                </div>
+            `;
+            if(type === 'MISSING') {
+                container.innerHTML += `
+                    <div class="terminal-zone" style="margin-top:12px;">
+                        <span class="zone-label">GEOGRAPHIC PARAMETERS</span>
+                        <label>Last Known Location Coordinates / Intersections:</label>
+                        <input type="text" id="lastLoc" placeholder="e.g. Integrity Way / San Andreas Ave...">
+                    </div>
+                `;
+            }
+            addPersonRow();
+        }
+    }
+
+    function addPersonRow() {
+        const box = document.getElementById('peopleList');
+        const div = document.createElement('div');
+        div.style.display = 'flex'; div.style.gap = '8px'; div.style.marginBottom = '8px';
+        div.innerHTML = `
+            <select style="width:160px; margin:0;" class="p-type"><option>Suspect</option><option>Victim</option><option>Witness</option><option>Missing</option></select>
+            <input type="text" style="flex:2; margin:0;" class="p-name" placeholder="Full Legal Name / Recognized Aliases">
+            <button type="button" class="btn" style="background:var(--alert-red); color:white; padding:0 15px;" onclick="this.parentElement.remove()">REMOVE</button>
+        `;
+        box.appendChild(div);
+        playTick();
+    }
+
+    function printReport() {
+        const rank = document.getElementById('rankSel').value;
+        const nar = document.getElementById('narrative').value;
+        const evi = document.getElementById('evidence').value;
+        const add = document.getElementById('addActions').value;
+        const checks = Array.from(document.querySelectorAll('#actionsMatrix input:checked')).map(c => c.value);
+
+        let out = `**[ LSPD CENTRAL DATABASE ]**\n`;
+        out += `**REPORT TYPE:** ${currentTab}\n`;
+        out += `**OFFICER:** ${rank} ${offName}\n`;
+        out += `**UNIT:** ${unitID}\n`;
+        out += `**TIMESTAMP REGISTER:** ${new Date().toLocaleString()}\n`;
+        out += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+        if(currentTab === 'INCIDENT' || currentTab === 'MISSING') {
+            out += `**INVOLVED PERSONS:**\n`;
+            document.querySelectorAll('#peopleList > div').forEach(row => {
+                out += `- [${row.querySelector('.p-type').value}] ${row.querySelector('.p-name').value || "UNKNOWN/UNSTATED"}\n`;
+            });
+            if(currentTab === 'MISSING') out += `\n**LAST KNOWN LOCATION:** ${document.getElementById('lastLoc').value || "Unknown/Not logged."}\n`;
+            out += `\n`;
+        }
+
+        out += `**NARRATIVE LOG:**\n${nar || "No historical event logged."}\n\n`;
+
+        out += `**EVIDENCE STORE:**\n`;
+        if (evi.trim()) {
+            evi.split('\n').filter(l => l.trim() !== '').forEach(line => out += `- ${line.trim()}\n`);
+        } else { out += ` None logged.\n`; }
+        out += `\n`;
+
+        out += `**ACTIONS INITIATED:**\n➔ ${checks.join(' | ') || "No operational procedures ticked."}\n\n`;
+        if(add) out += `**ADDITIONAL PROCEDURES:**\n➔ ${add}\n`;
+
+        const paper = document.getElementById('outputPaper');
+        paper.innerText = out;
+        paper.classList.remove('printing-active');
+        void paper.offsetWidth;
+        paper.classList.add('printing-active');
+        document.getElementById('copyBtn').style.display = 'block';
+        playPrinterSound();
+    }
+
+    function copyReport() {
+        navigator.clipboard.writeText(document.getElementById('outputPaper').innerText);
+        alert("DATA LOG SHIPPED TO SYSTEM CLIPBOARD.");
+    }
+
+    document.addEventListener('keydown', (e) => { if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') playTick(); });
+</script>
+
+</body>
+</html>
