@@ -5,218 +5,202 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LSPD Central Database - Node 04</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600&display=swap');
+
         :root {
             --amber: #ffb000;
             --amber-bright: #ffc44d;
             --amber-dim: #7c5600;
             --amber-ghost: #261a00;
+            --crt-green: #33ff33;
             --bg-deep: #050402;
-            --bezel: #1a1a1a;
-            --alert-red: #881337;
+            --bezel: #111;
+            --alert-red: #cc0000;
         }
 
         body {
             background-color: #000;
             color: var(--amber);
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
             margin: 0; padding: 10px;
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh; overflow: hidden;
+            user-select: none;
         }
 
         .monitor {
             background: var(--bezel);
-            padding: 20px;
-            border-radius: 40px;
-            border-bottom: 15px solid #000;
-            box-shadow: 0 50px 100px rgba(0,0,0,1);
-            width: 1455px;
+            padding: 25px;
+            border-radius: 30px;
+            border-bottom: 20px solid #0a0a0a;
+            box-shadow: 0 40px 100px rgba(0,0,0,1), inset 0 0 10px rgba(255,255,255,0.05);
+            width: 1500px;
             max-width: 98vw;
             position: relative;
         }
 
+        /* Completely stabilized display framework with zero refresh flickers or stutters */
         .screen {
             background-color: var(--bg-deep);
-            border: 15px solid #0a0a0a;
-            border-radius: 10px;
+            border: 10px solid #050505;
+            border-radius: 15px;
             height: 90vh;
             display: flex;
             position: relative;
             overflow: hidden;
-            box-shadow: inset 0 0 80px rgba(0,0,0,1);
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
         }
 
+        /* 100% Static pixel mask geometry - absolutely no motion or scrolling to protect eyes */
         .screen::after {
             content: " "; display: block; position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
-            z-index: 100; background-size: 100% 3px, 3px 100%; pointer-events: none;
-            animation: flicker 0.15s infinite;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%);
+            z-index: 100; background-size: 100% 4px; pointer-events: none;
+            box-shadow: inset 0 0 60px rgba(255, 176, 0, 0.05);
         }
-
-        @keyframes flicker { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.95; } }
 
         .sidebar {
             width: 320px;
-            border-right: 2px dashed var(--amber-dim);
-            padding: 20px;
-            background: #080602;
-            font-size: 0.78rem;
+            border-right: 2px solid var(--amber-dim);
+            padding: 25px;
+            background: rgba(8, 6, 2, 0.8);
+            font-size: 0.85rem;
             overflow-y: auto;
             z-index: 5;
         }
 
         .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 25px;
-            overflow-y: auto;
-            z-index: 5;
-            gap: 18px; /* Clean spacing between sections */
+            flex: 1; display: flex; flex-direction: column;
+            padding: 30px; overflow-y: auto; z-index: 5; gap: 20px;
         }
 
         #bootLoader {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 3000; padding: 40px; color: #fff;
-            display: flex; flex-direction: column; gap: 5px;
+            background: var(--bg-deep); z-index: 3000; padding: 40px 50px; color: var(--crt-green);
+            display: flex; flex-direction: column; gap: 4px; font-size: 1rem;
+            box-sizing: border-box; overflow-y: hidden;
         }
 
-        /* Grouped Terminal Sections for Readability */
-        .terminal-zone {
-            border: 1px dashed var(--amber-dim);
-            padding: 15px;
-            background: rgba(10, 8, 4, 0.4);
+        /* Vintage Kyntra OS Terminal Login Panel */
+        #loginScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg-deep); z-index: 2000; display: none; 
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .login-banner {
+            color: var(--amber-bright); font-size: 1.4rem; letter-spacing: 2px; margin-bottom: 5px; font-weight: bold;
+        }
+
+        .terminal-panel {
+            border: 2px solid var(--amber-dim);
+            padding: 20px;
+            background: rgba(10, 8, 4, 0.6);
             position: relative;
+            box-shadow: inset 0 0 20px rgba(255, 176, 0, 0.02);
+            transition: border-color 0.2s;
         }
-
-        .zone-label {
-            position: absolute;
-            top: -8px; left: 15px;
-            background: var(--bg-deep);
-            padding: 0 8px;
-            font-size: 0.65rem;
-            color: var(--amber-dim);
-            letter-spacing: 1px;
-            font-weight: bold;
-        }
-
-        /* Action Grid Split by Category Headers */
-        .actions-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px 10px;
-            padding-top: 5px;
-        }
-
-        .grid-category-header {
-            grid-column: span 4;
-            font-size: 0.65rem;
-            color: var(--amber-dim);
-            border-bottom: 1px solid var(--amber-ghost);
-            padding-bottom: 2px;
-            margin-top: 5px;
-            letter-spacing: 1.5px;
-            font-weight: bold;
-        }
-
-        .action-item {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.72rem;
-        }
-
-        .action-item label {
-            margin-bottom: 0;
-            cursor: pointer;
-            color: var(--amber);
-        }
-
-        input[type="checkbox"] {
-            appearance: none;
-            width: 14px; height: 14px;
-            border: 1px solid var(--amber-dim);
-            background: transparent;
-            cursor: pointer;
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        input[type="checkbox"]:checked {
-            border-color: var(--amber);
-            background: var(--amber-ghost);
-        }
-
-        input[type="checkbox"]:checked::after {
-            content: "■";
-            color: var(--amber-bright);
-            position: absolute;
-            top: -2px; left: 1px;
-            font-size: 11px;
-        }
-
-        .printer-out {
-            background: #fdfdfd;
-            color: #111;
-            padding: 40px;
-            margin-top: 30px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            font-family: 'Courier', monospace;
-            white-space: pre-wrap;
-            transform: translateY(100%);
-            display: none;
-            line-height: 1.4;
-        }
-
-        @keyframes paperFeed {
-            0% { transform: translateY(100%); }
-            100% { transform: translateY(0); }
-        }
-
-        .printing-active {
-            display: block;
-            animation: paperFeed 4s steps(60) forwards;
-        }
-
-        .tab-bar { display: flex; gap: 8px; }
-        .tab { 
-            padding: 8px 20px; border: 1px solid var(--amber-dim); cursor: pointer; 
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;
-        }
-        .tab.active { background: var(--amber); color: #000; font-weight: bold; border-color: var(--amber); }
-
-        label { display: block; font-size: 0.7rem; color: var(--amber-bright); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
-        
-        input[type="text"], textarea, select {
-            background: #000; border: 1px solid var(--amber-dim);
-            color: var(--amber); font-family: inherit; padding: 10px; width: 100%; box-sizing: border-box;
-            line-height: 1.4;
-        }
-
-        input[type="text"]:focus, textarea:focus, select:focus {
-            outline: none;
+        .terminal-panel:focus-within {
             border-color: var(--amber-bright);
-            background: rgba(20, 14, 5, 0.5);
         }
+
+        .panel-label {
+            position: absolute; top: -10px; left: 15px;
+            background: var(--bg-deep); padding: 0 10px;
+            font-size: 0.8rem; color: var(--amber-bright);
+            letter-spacing: 1px; font-weight: bold; text-transform: uppercase;
+        }
+
+        .data-input {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--amber-dim);
+            color: #fff;
+            padding: 12px; width: 100%; box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        .data-input:focus {
+            outline: none; border-color: var(--amber-bright);
+            background: rgba(20, 14, 5, 0.8); box-shadow: 0 0 10px rgba(255, 176, 0, 0.2);
+        }
+
+        .actions-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 10px; padding-top: 10px;
+        }
+        .grid-category-header {
+            grid-column: span 4; font-size: 0.75rem; color: var(--amber-dim);
+            border-bottom: 1px solid var(--amber-ghost); padding-bottom: 4px;
+            margin-top: 10px; letter-spacing: 1.5px;
+        }
+
+        .action-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
+        .action-item label { cursor: pointer; color: var(--amber); }
+        
+        input[type="checkbox"] {
+            appearance: none; width: 16px; height: 16px; flex-shrink: 0;
+            border: 1px solid var(--amber-dim); background: #000; cursor: pointer; position: relative;
+        }
+        input[type="checkbox"]:checked { border-color: var(--amber-bright); background: var(--amber-ghost); }
+        input[type="checkbox"]:checked::after {
+            content: "X"; color: var(--amber-bright); position: absolute;
+            top: -1px; left: 3px; font-size: 12px; font-weight: bold;
+        }
+
+        .tab-bar { display: flex; gap: 10px; border-bottom: 2px solid var(--amber-dim); padding-bottom: 10px; }
+        .tab { 
+            padding: 8px 20px; color: var(--amber-dim); cursor: pointer; 
+            font-size: 0.9rem; text-transform: uppercase; font-weight: bold; transition: 0.2s;
+        }
+        .tab:hover { color: var(--amber-bright); }
+        .tab.active { background: var(--amber); color: #000; }
 
         .btn {
-            background: var(--amber); color: #000; border: none; padding: 12px 24px;
-            font-weight: bold; cursor: pointer; text-transform: uppercase; font-family: inherit; letter-spacing: 1px;
+            background: var(--amber-dim); color: #000; border: 2px solid var(--amber);
+            padding: 12px 24px; font-weight: bold; cursor: pointer; text-transform: uppercase; 
+            font-family: inherit; letter-spacing: 1px; font-size: 0.9rem; transition: all 0.2s;
         }
-        .btn:hover { background: #fff; }
+        .btn:hover:not(:disabled) { background: var(--amber-bright); box-shadow: 0 0 15px rgba(255, 176, 0, 0.4); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .btn-toggle {
-            background: transparent; color: var(--amber-dim); border: 1px solid var(--amber-dim);
-            padding: 4px 10px; font-size: 0.65rem; cursor: pointer; text-transform: uppercase; font-family: inherit;
+        #printStatusBox {
+            background: #000; border: 1px dashed var(--crt-green); color: var(--crt-green);
+            padding: 15px; margin-bottom: 20px; display: none; font-size: 0.85rem; line-height: 1.6;
         }
-        .btn-toggle:hover { color: var(--amber); border-color: var(--amber); }
-
-        .lexicon-item { margin-bottom: 15px; border-left: 2px solid var(--amber-dim); padding-left: 10px; }
-        .lexicon-item div { color: #555; text-decoration: line-through; font-size: 0.7rem; }
-        .lexicon-item span { color: #fff; display: block; font-weight: bold; margin-top: 2px; }
+        
+        .printer-container {
+            width: 100%; height: 350px; position: relative;
+            background: #111; border: 2px solid #222; display: none;
+            overflow-y: hidden;
+            box-shadow: inset 0 20px 30px rgba(0,0,0,0.8);
+        }
+        
+        .paper-wrapper { min-height: 100%; }
+        .printing .paper-wrapper { animation: feedPaper 6.0s linear forwards; }
+        
+        @keyframes feedPaper {
+            0% { transform: translateY(350px); }
+            100% { transform: translateY(0); }
+        }
+        
+        .paper {
+            background: #e6e3dc; color: #111; font-family: 'Share Tech Mono', monospace;
+            padding: 30px; font-size: 0.8rem; line-height: 1.4; white-space: pre-wrap;
+            position: relative; width: 100%; box-sizing: border-box; min-height: 350px;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+        }
+        
+        .paper-holes {
+            position: absolute; left: 5px; top: 0; bottom: 0; width: 10px;
+            background-image: radial-gradient(#333 30%, transparent 35%);
+            background-size: 10px 20px;
+        }
+        .paper-holes.right { left: auto; right: 5px; }
+        
+        .person-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .person-select { width: 160px; font-family: 'Inter', sans-serif; padding: 10px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--amber-dim); }
     </style>
 </head>
 <body>
@@ -224,141 +208,127 @@
 <div class="monitor">
     <div class="screen">
         
-        <div id="bootLoader">
-            <p id="boot1">> LSPD AMIBIOS (C) 1994 American Megatrends</p>
-            <p id="boot2">> Memory Check: 640KB OK</p>
-            <p id="boot3">> Initializing Comm Link... [SECURE]</p>
-            <p id="boot4">> Loading STATION_04_DRIVERS...</p>
-            <p id="boot5" style="color:var(--amber)">> ACCESS GRANTED. WELCOME BACK, OFFICER PORTER.</p>
-        </div>
+        <div id="bootLoader"></div>
 
-        <div id="loginScreen" style="position:absolute; width:100%; height:100%; background:var(--bg-deep); z-index:2000; display:none; flex-direction:column; justify-content:center; align-items:center;">
-            <div style="border:1px solid var(--amber); padding:30px; width:300px; text-align:center;">
-                <p>[ LSPD SECURE NODE ]</p>
-                <input type="text" id="offName" placeholder="OFFICER NAME" value="LEVI PORTER" style="margin-bottom:10px;">
-                <input type="text" id="unitID" placeholder="UNIT NUMBER" value="1A-37" style="margin-bottom:15px;">
-                <button class="btn" style="width:100%" onclick="finishLogin()">INITIALIZE</button>
+        <div id="loginScreen">
+            <div class="login-banner">KYNTRA OS v4.22.1</div>
+            <div style="color: var(--amber-dim); font-size:0.8rem; letter-spacing: 1.5px; margin-bottom:25px;">MULTITASKING LOCAL ENVIRONMENT TERMINAL HOST</div>
+            
+            <div class="terminal-panel" style="width: 480px; text-align: left; padding: 30px;">
+                <span class="panel-label">SECURITY CHALLENGE INITIALIZED</span>
+                
+                <div style="font-size:0.75rem; color:#850000; font-weight:bold; margin-bottom:20px; border: 1px solid #4a0000; padding:10px; background:rgba(30,0,0,0.4)">
+                    NOTICE: UNLAWFUL ACCESS TO THIS LOGGING COMPUTER IS STRICTLY MONITORED UNDER STATE FEDERAL CODES. DISCONNECT IMMEDIATELY IF UNAUTHORIZED.
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; font-size:0.8rem; color:var(--amber-dim); margin-bottom:6px;">OPERATOR IDENTITY NAME:</label>
+                    <input type="text" class="data-input" id="offName" value="LEVI PORTER" style="font-family:'Share Tech Mono'; letter-spacing:1px; color:var(--amber-bright);">
+                </div>
+
+                <div style="margin-bottom:25px;">
+                    <label style="display:block; font-size:0.8rem; color:var(--amber-dim); margin-bottom:6px;">ASSIGNED STATION/UNIT CALLSIGN:</label>
+                    <input type="text" class="data-input" id="unitID" value="1A-37" style="font-family:'Share Tech Mono'; letter-spacing:1px; color:var(--amber-bright);">
+                </div>
+
+                <button class="btn" style="width:100%" onclick="finishLogin()">ESTABLISH SECURE LINK</button>
+
+                <div style="margin-top:20px; display:flex; justify-content:space-between; font-size:0.7rem; color:var(--amber-dim)">
+                    <span>PORT: 04 // BAUD: 9600</span>
+                    <span>CRYPT STATE: DES-EE3</span>
+                </div>
             </div>
         </div>
 
         <div class="sidebar">
-            <h3 style="margin-top:0; border-bottom:1px solid var(--amber); padding-bottom:5px;">SYNTAX LEXICON</h3>
-            <div class="lexicon-item"><div>I saw him</div> <span>"Observed suspect on scene"</span></div>
-            <div class="lexicon-item"><div>He ran away</div> <span>"Suspect fled on foot"</span></div>
-            <div class="lexicon-item"><div>I caught him</div> <span>"Suspect apprehended"</span></div>
-            <div class="lexicon-item"><div>Checking car</div> <span>"Conducted vehicle search"</span></div>
-            <div class="lexicon-item"><div>He was mad</div> <span>"Suspect was uncooperative"</span></div>
-            <div class="lexicon-item"><div>Looking around</div> <span>"Area canvassed"</span></div>
-            <div class="lexicon-item"><div>Cop car</div> <span>"Patrol unit"</span></div>
-            <div class="lexicon-item"><div>Found a gun</div> <span>"Firearm recovered"</span></div>
-            <div class="lexicon-item"><div>He was high</div> <span>"Showed signs of impairment"</span></div>
+            <h3 style="margin-top:0; border-bottom:1px solid var(--amber); padding-bottom:10px; color:var(--amber-bright);">// SYNTAX LEXICON</h3>
+            <div style="display:flex; flex-direction:column; gap: 15px;">
+                <div><div style="color:#666; text-decoration:line-through;">I saw him</div> <span style="color:#fff;">"Observed suspect on scene"</span></div>
+                <div><div style="color:#666; text-decoration:line-through;">He ran away</div> <span style="color:#fff;">"Suspect fled on foot"</span></div>
+                <div><div style="color:#666; text-decoration:line-through;">I caught him</div> <span style="color:#fff;">"Suspect apprehended"</span></div>
+                <div><div style="color:#666; text-decoration:line-through;">Checking car</div> <span style="color:#fff;">"Conducted vehicle search"</span></div>
+                <div><div style="color:#666; text-decoration:line-through;">He was mad</div> <span style="color:#fff;">"Suspect was uncooperative"</span></div>
+                <div><div style="color:#666; text-decoration:line-through;">Found a gun</div> <span style="color:#fff;">"Firearm recovered"</span></div>
+                <div><div style="color:#666; text-decoration:line-through;">He was high</div> <span style="color:#fff;">"Showed signs of impairment"</span></div>
+            </div>
         </div>
 
-        <div class="main-content">
+        <div class="main-content" id="mainWorkspace">
             
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div style="display:flex; align-items:center; gap:15px;">
-                    <span id="userDisplay" style="font-size:0.75rem; color:var(--amber-dim); font-weight:bold;">NODE: STATION_04 | AUTH: ---</span>
-                    <button type="button" class="btn-toggle" onclick="toggleLexicon()">[ Toggle Lexicon ]</button>
-                </div>
-                <select id="rankSel" style="width:auto; font-size:0.75rem; padding:5px;">
-                    <optgroup label="Command Staff">
-                        <option value="[Commissioner]">Commissioner (🦅)</option>
-                        <option value="[Deputy Commissioner]">Deputy Commissioner (➖)</option>
-                        <option value="[Chief of Police]">Chief of Police (⭐⭐⭐⭐)</option>
-                        <option value="[Commander]">Commander (⭐)</option>
-                    </optgroup>
-                    <optgroup label="Supervisory Staff">
-                        <option value="[Captain]">Captain (|||)</option>
-                        <option value="[Lieutenant]">Lieutenant (||)</option>
-                        <option value="[Sergeant II]">Sergeant II (👮⚡)</option>
-                        <option value="[Sergeant]">Sergeant (👮)</option>
-                    </optgroup>
-                    <optgroup label="Field Operations">
-                        <option value="[Police Officer III]">Officer III (▼)</option>
-                        <option value="[Police Officer II]">Officer II (▽)</option>
-                        <option value="[Police Officer I]" selected>Officer I (✕)</option>
-                    </optgroup>
+                <span id="userDisplay" style="font-size:0.9rem; color:var(--amber-bright); font-weight:bold;">NODE: 04 | AUTH: ---</span>
+                <select id="rankSel" class="data-input" style="width:auto; font-family:'Share Tech Mono'; padding:8px;">
+                    <option value="[Police Officer I]">Police Officer I (✕)</option>
+                    <option value="[Police Officer II]">Police Officer II (▽)</option>
+                    <option value="[Police Officer III]">Police Officer III (▼)</option>
+                    <option value="[Sergeant]">Sergeant (👮)</option>
+                    <option value="[Sergeant II]">Sergeant II (👮 Locked)</option>
+                    <option value="[Lieutenant]">Lieutenant (⚡)</option>
+                    <option value="[Captain]">Captain (⚓)</option>
+                    <option value="[Commander]">Commander (★)</option>
+                    <option value="[Deputy Chief of Police]">Deputy Chief of Police (★★)</option>
+                    <option value="[Assistant Chief of Police]">Assistant Chief of Police (★★★)</option>
+                    <option value="[Chief of Police]">Chief of Police (★★★★)</option>
+                    <option value="[Deputy Commissioner]">Deputy Commissioner (—)</option>
+                    <option value="[Commissioner]">Commissioner (🦅)</option>
                 </select>
             </div>
 
             <div class="tab-bar">
-                <div class="tab active" onclick="setTab('ARREST', this)">Arrest</div>
-                <div class="tab" onclick="setTab('CITATION', this)">Citation</div>
-                <div class="tab" onclick="setTab('INCIDENT', this)">Incident</div>
-                <div class="tab" onclick="setTab('MISSING', this)">Missing Person</div>
+                <div class="tab active" onclick="setTab('ARREST', this)">ARREST</div>
+                <div class="tab" onclick="setTab('CITATION', this)">CITATION</div>
+                <div class="tab" onclick="setTab('INCIDENT', this)">INCIDENT</div>
+                <div class="tab" onclick="setTab('MISSING', this)">MISSING PERSON</div>
             </div>
 
             <div id="dynamicFields"></div>
 
-            <div class="terminal-zone">
-                <span class="zone-label">MODULE II: CASE DATA ENTRY</span>
-                <label>Narrative / Event Summary:</label>
-                <textarea id="narrative" rows="5" placeholder="At approximately..."></textarea>
-
-                <label style="margin-top: 10px;">Evidence Log (Each item on a new line):</label>
-                <textarea id="evidence" rows="2" placeholder="e.g. 1x Glock 17 base model&#10;2x Spent bullet casings"></textarea>
+            <div class="terminal-panel">
+                <span class="panel-label">NARRATIVE & EVIDENCE</span>
+                <label style="display:block; margin-bottom:5px; color:var(--amber-dim);">Incident Summary:</label>
+                <textarea id="narrative" class="data-input" rows="4" placeholder="Detail the sequence of events..."></textarea>
+                
+                <label style="display:block; margin-top:15px; margin-bottom:5px; color:var(--amber-dim);">Evidence Log:</label>
+                <textarea id="evidence" class="data-input" rows="2" placeholder="List items seized (each on a new line)..."></textarea>
             </div>
 
-            <div class="terminal-zone">
-                <span class="zone-label">MODULE III: SYSTEM PROCEDURES INDEX</span>
+            <div class="terminal-panel">
+                <span class="panel-label">ACTIONS INITIATED</span>
                 <div class="actions-grid" id="actionsMatrix">
-                    
-                    <div class="grid-category-header">CUSTODY & ESCALATION</div>
-                    <div class="action-item"><input type="checkbox" id="a1" value="Miranda Read"><label for="a1">Miranda Read</label></div>
-                    <div class="action-item"><input type="checkbox" id="a2" value="Suspect Detained"><label for="a2">Detained</label></div>
-                    <div class="action-item"><input type="checkbox" id="a3" value="Foot Pursuit"><label_for="a3">Foot Pursuit</label_for=></div>
-                    <div class="action-item"><input type="checkbox" id="a4" value="Vehicle Pursuit"><label for="a4">Veh. Pursuit</label></div>
-                    <div class="action-item"><input type="checkbox" id="a5" value="Felony Stop"><label for="a5">Felony Stop</label></div>
-                    <div class="action-item"><input type="checkbox" id="a6" value="Backup Requested"><label for="a6">Backup Req.</label></div>
-                    <div class="action-item"><input type="checkbox" id="a7" value="Air Support Req."><label for="a7">Air Support</label></div>
-                    <div class="action-item"><input type="checkbox" id="a8" value="Warrant Checked"><label for="a8">Warrant Check</label></div>
-
-                    <div class="grid-category-header">TACTICAL FORCE RESPONSES</div>
-                    <div class="action-item"><input type="checkbox" id="b1" value="Weapon Drawn"><label for="b1">Weapon Drawn</label></div>
-                    <div class="action-item"><input type="checkbox" id="b2" value="Taser Deployed"><label for="b2">Taser Deployed</label></div>
-                    <div class="action-item"><input type="checkbox" id="b3" value="Less-Lethal Used"><label for="b3">Less-Lethal</label></div>
-                    <div class="action-item"><input type="checkbox" id="b4" value="Canine Deployed"><label for="b4">K9 Deployed</label></div>
-                    <div class="action-item"><input type="checkbox" id="b5" value="Spike Strips"><label for="b5">Spike Strips</label></div>
-                    <div class="action-item"><input type="checkbox" id="b6" value="PIT Executed"><label for="b6">PIT Maneuver</label></div>
-
-                    <div class="grid-category-header">SEARCH & SEIZURE PROPERTIES</div>
-                    <div class="action-item"><input type="checkbox" id="c1" value="Vehicle Search"><label for="c1">Veh. Search</label></div>
-                    <div class="action-item"><input type="checkbox" id="c2" value="Person Searched"><label for="c2">Person Search</label></div>
-                    <div class="action-item"><input type="checkbox" id="c3" value="Narcotics Seized"><label for="c3">Drugs Seized</label></div>
-                    <div class="action-item"><input type="checkbox" id="c4" value="Firearm Recovered"><label for="c4">Gun Recovered</label></div>
-                    <div class="action-item"><input type="checkbox" id="c5" value="Vehicle Towed"><label for="c5">Veh. Impounded</label></div>
-                    <div class="action-item"><input type="checkbox" id="c6" value="Scene Secured"><label for="c6">Scene Secured</label></div>
-
-                    <div class="grid-category-header">ADMINISTRATIVE & FORENSICS</div>
-                    <div class="action-item"><input type="checkbox" id="d1" value="Breathalyzer Used"><label for="d1">Breathalyzer</label></div>
-                    <div class="action-item"><input type="checkbox" id="d2" value="GSR Test Taken"><label for="d2">GSR Test</label></div>
-                    <div class="action-item"><input type="checkbox" id="d3" value="DNA Sample Taken"><label for="d3">DNA Sample</label></div>
-                    <div class="action-item"><input type="checkbox" id="d4" value="Fingerprints Taken"><label for="d4">Fingerprints</label></div>
-                    <div class="action-item"><input type="checkbox" id="d5" value="EMS Contacted"><label for="d5">EMS Called</label></div>
-                    <div class="action-item"><input type="checkbox" id="d6" value="Warning Issued"><label for="d6">Verbal Warn</label></div>
-                    <div class="action-item"><input type="checkbox" id="d7" value="Citation Issued"><label for="d7">Citation Out</label></div>
-                    <div class="action-item"><input type="checkbox" id="d8" value="Photos Taken"><label for="d8">Photos Taken</label></div>
-                    <div class="action-item"><input type="checkbox" id="d9" value="Bodycam Uploaded"><label for="d9">Bodycam Up</label></div>
-                    <div class="action-item"><input type="checkbox" id="d10" value="Supervisor Notified"><label for="d10">Supervisor</label></div>
+                    <div class="grid-category-header">CORE RESPONSES</div>
+                    <div class="action-item"><input type="checkbox" id="a1" value="MIRANDA READ"><label for="a1">MIRANDA READ</label></div>
+                    <div class="action-item"><input type="checkbox" id="a2" value="DETAINED"><label for="a2">DETAINED</label></div>
+                    <div class="action-item"><input type="checkbox" id="a3" value="FOOT PURSUIT"><label for="a3">FOOT PURSUIT</label></div>
+                    <div class="action-item"><input type="checkbox" id="a4" value="VEH. SEARCH"><label for="a4">VEH. SEARCH</label></div>
+                    <div class="action-item"><input type="checkbox" id="a5" value="WEAPON DRAWN"><label for="a5">WEAPON DRAWN</label></div>
+                    <div class="action-item"><input type="checkbox" id="a6" value="EMS CONTACTED"><label for="a6">EMS CONTACTED</label></div>
+                    <div class="action-item"><input type="checkbox" id="a7" value="SPIKE STRIPS"><label for="a7">SPIKE STRIPS</label></div>
+                    <div class="action-item"><input type="checkbox" id="a8" value="PIT EXECUTED"><label for="a8">PIT EXECUTED</label></div>
                 </div>
             </div>
 
-            <div>
-                <label>Additional Procedures Required:</label>
-                <input type="text" id="addActions" placeholder="e.g. Forwarded to Traffic Division units...">
+            <div class="terminal-panel">
+                <span class="panel-label">POST-ACTION PROTOCOL</span>
+                <input type="text" id="addActions" class="data-input" placeholder="Additional procedures (e.g. Forwarded to Traffic Division units)...">
             </div>
 
-            <div style="display:flex; gap:10px;">
-                <button class="btn" style="flex:2" onclick="printReport()">📠 PRINT OFFICIAL REPORT</button>
-                <button class="btn" style="background:#222; color:var(--amber); border:1px solid var(--amber-dim);" onclick="location.reload()">SYSTEM REBOOT</button>
+            <div id="printStatusBox"></div>
+
+            <div class="printer-container" id="printerDisplay">
+                <div class="paper-wrapper" id="paperWrapper">
+                    <div class="paper" id="outputPaper">
+                        <div class="paper-holes"></div><div class="paper-holes right"></div>
+                        <div id="paperContent"></div>
+                    </div>
+                </div>
             </div>
 
-            <div id="printerContainer" style="overflow:hidden;">
-                <div id="outputPaper" class="printer-out"></div>
+            <div style="display:flex; gap:15px;" id="actionButtons">
+                <button class="btn" id="printBtn" style="flex:1" onclick="initiatePrintSequence()">🖨️ COMPILE & PRINT</button>
+                <button class="btn" id="copyBtn" style="display:none; flex:1" onclick="copyReport()">📋 COPY TO CLIPBOARD</button>
+                <button class="btn" style="background:transparent; color:var(--alert-red); border-color:var(--alert-red);" onclick="location.reload()">REBOOT</button>
             </div>
             
-            <button id="copyBtn" class="btn" style="width:100%; display:none; margin-bottom: 20px;" onclick="copyReport()">📋 COPY TO CLIPBOARD INTERFACE</button>
         </div>
     </div>
 </div>
@@ -366,78 +336,256 @@
 <script>
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let currentTab = "ARREST";
-    let offName = "";
-    let unitID = "";
+    let noiseBuffer = null;
+    let activePrinterNodes = [];
 
-    function playTick() {
-        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-        o.frequency.setValueAtTime(440, audioCtx.currentTime);
-        g.gain.setValueAtTime(0.03, audioCtx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(audioCtx.currentTime + 0.04);
+    function getNoiseBuffer() {
+        if (noiseBuffer) return noiseBuffer;
+        const size = audioCtx.sampleRate * 2;
+        const buffer = audioCtx.createBuffer(1, size, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < size; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+        noiseBuffer = buffer;
+        return noiseBuffer;
     }
 
-    function playPrinterSound() {
-        let now = audioCtx.currentTime;
-        for(let i=0; i<25; i++) {
-            let t = now + (i*0.14);
-            let o = audioCtx.createOscillator(); let g = audioCtx.createGain();
-            o.type = 'square'; o.frequency.setValueAtTime(950 + (Math.random()*150), t);
-            g.gain.setValueAtTime(0.01, t); g.gain.linearRampToValueAtTime(0, t+0.1);
-            o.connect(g); g.connect(audioCtx.destination);
-            o.start(t); o.stop(t+0.1);
+    function playClick() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const clickNoise = audioCtx.createBufferSource();
+        clickNoise.buffer = getNoiseBuffer();
+        const noiseFilter = audioCtx.createBiquadFilter();
+        noiseFilter.type = 'bandpass';
+        noiseFilter.frequency.setValueAtTime(1300, audioCtx.currentTime);
+        noiseFilter.Q.setValueAtTime(5, audioCtx.currentTime);
+        
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.012);
+        
+        const frameThump = audioCtx.createOscillator();
+        frameThump.type = 'triangle';
+        frameThump.frequency.setValueAtTime(135, audioCtx.currentTime);
+        frameThump.frequency.exponentialRampToValueAtTime(45, audioCtx.currentTime + 0.025);
+        
+        const thumpGain = audioCtx.createGain();
+        thumpGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        thumpGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.025);
+        
+        clickNoise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+        frameThump.connect(thumpGain); thumpGain.connect(audioCtx.destination);
+        
+        clickNoise.start(); clickNoise.stop(audioCtx.currentTime + 0.02);
+        frameThump.start(); frameThump.stop(audioCtx.currentTime + 0.03);
+    }
+
+    function playHeavyClick() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(85, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(25, audioCtx.currentTime + 0.07);
+        
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(220, audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.07);
+        
+        osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.07);
+    }
+
+    function playCRTBootSound() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const degauss = audioCtx.createOscillator();
+        degauss.type = 'sine';
+        degauss.frequency.setValueAtTime(55, audioCtx.currentTime);
+        degauss.frequency.linearRampToValueAtTime(12, audioCtx.currentTime + 0.7);
+        
+        const degGain = audioCtx.createGain();
+        degGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        degGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
+        
+        degauss.connect(degGain); degGain.connect(audioCtx.destination);
+        degauss.start(); degauss.stop(audioCtx.currentTime + 0.7);
+        
+        const flyback = audioCtx.createOscillator();
+        flyback.type = 'sine';
+        flyback.frequency.setValueAtTime(6800, audioCtx.currentTime);
+        
+        const flyGain = audioCtx.createGain();
+        flyGain.gain.setValueAtTime(0.012, audioCtx.currentTime);
+        flyGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.2);
+        
+        flyback.connect(flyGain); flyGain.connect(audioCtx.destination);
+        flyback.start(); flyback.stop(audioCtx.currentTime + 2.2);
+    }
+
+    function playDataSeekSound() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+        
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(180 + (Math.random() * 300), audioCtx.currentTime);
+        
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(600, audioCtx.currentTime);
+        
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+        
+        osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.04);
+    }
+
+    function startPrinterSound() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        stopPrinterSound();
+        
+        const masterPrinterGain = audioCtx.createGain();
+        masterPrinterGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        masterPrinterGain.connect(audioCtx.destination);
+
+        const pinStrikes = audioCtx.createBufferSource();
+        pinStrikes.buffer = getNoiseBuffer();
+        pinStrikes.loop = true;
+        
+        const pinFilter = audioCtx.createBiquadFilter();
+        pinFilter.type = 'bandpass';
+        pinFilter.frequency.setValueAtTime(2200, audioCtx.currentTime);
+        pinFilter.Q.setValueAtTime(4, audioCtx.currentTime);
+        
+        const pinModulator = audioCtx.createOscillator();
+        pinModulator.type = 'square';
+        pinModulator.frequency.setValueAtTime(85, audioCtx.currentTime);
+        
+        const pinModGain = audioCtx.createGain();
+        pinModGain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+        
+        const stepperMotor = audioCtx.createOscillator();
+        stepperMotor.type = 'sawtooth';
+        stepperMotor.frequency.setValueAtTime(140, audioCtx.currentTime);
+        
+        const motorFilter = audioCtx.createBiquadFilter();
+        motorFilter.type = 'lowpass';
+        motorFilter.frequency.setValueAtTime(350, audioCtx.currentTime);
+        
+        const carriageSweep = audioCtx.createOscillator();
+        carriageSweep.type = 'triangle';
+        carriageSweep.frequency.setValueAtTime(0.65, audioCtx.currentTime);
+        
+        const sweepGain = audioCtx.createGain();
+        sweepGain.gain.setValueAtTime(25, audioCtx.currentTime);
+        
+        carriageSweep.connect(sweepGain); sweepGain.connect(stepperMotor.frequency);
+        pinModulator.connect(pinModGain); pinModGain.connect(pinFilter.frequency);
+        pinStrikes.connect(pinFilter); pinFilter.connect(masterPrinterGain);
+        stepperMotor.connect(motorFilter); motorFilter.connect(masterPrinterGain);
+        
+        pinStrikes.start(); stepperMotor.start(); carriageSweep.start(); pinModulator.start();
+        activePrinterNodes = [pinStrikes, stepperMotor, carriageSweep, pinModulator, masterPrinterGain];
+    }
+
+    function stopPrinterSound() {
+        if(activePrinterNodes.length > 0) {
+            activePrinterNodes.forEach(node => { try { node.stop(); } catch(e){} });
+            activePrinterNodes = [];
         }
     }
 
-    window.onload = function() {
-        setTimeout(() => document.getElementById('boot2').style.display='block', 500);
-        setTimeout(() => document.getElementById('boot3').style.display='block', 1000);
-        setTimeout(() => document.getElementById('boot4').style.display='block', 1500);
-        setTimeout(() => document.getElementById('boot5').style.display='block', 2000);
+    document.addEventListener('keydown', (e) => {
+        if(e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') playClick();
+    });
+    document.addEventListener('change', (e) => {
+        if(e.target.tagName === 'SELECT' || e.target.type === 'checkbox') playHeavyClick();
+    });
+
+    const bootLines = [
+        "KYNTRA SYSTEMS INC. BYTESIZE BIOS V3.01 CORE",
+        "COPR. 1986-1994 ALL RIGHTS RESERVED.",
+        "--------------------------------------------------",
+        "CPU: KYNTRA-68030 PRO processor @ 40 MHz",
+        "TESTING BASE MEMORY: 640 KB OK",
+        "TESTING EXTENDED MEMORY: 15360 KB OK",
+        "VERIFYING SYSTEM VECTORS... SUCCESSFUL",
+        "DETECTING COMPACT DISK DRIVES... NONE FOUND",
+        "MOUNTAIN STORAGE DEVICE... PRIMARY MASTER MATCHED [KNTR-540MB]",
+        "READING TRACK 0 SYSTEM CONFIGURATION BOOT SECTOR...",
+        " ",
+        "BOOTING Kyntra OS v4.22.1 ...",
+        "LOAD SYSTEM REGISTRY BASE PACKET... [ DONE ]",
+        "INITIALIZING TCP/IP NETWORK EMULATOR DEVICING MODULE...",
+        "UPLINK SECURED -> LSPD CENTRAL DATABANK TERMINAL ROUTE",
+        "ESTABLISHING CRYPTO GRAPHIC HANDSHAKE WITH MAIN FRAME NODE 04...",
+        "REMOTE ACCESS GRANTED. TERMINAL DESK PROTOCOL ENGAGED.",
+        "LAUNCHING MDT-SHELL INTERFACE ENGINE..."
+    ];
+
+    window.onload = async function() {
+        playCRTBootSound();
+        const loader = document.getElementById('bootLoader');
+        
+        for(let i = 0; i < bootLines.length; i++) {
+            const p = document.createElement('p');
+            if(bootLines[i].includes("Kyntra OS")) p.style.color = "var(--amber-bright)";
+            if(bootLines[i].includes("MDT-SHELL")) p.style.color = "#ffffff";
+            
+            p.innerText = bootLines[i];
+            loader.appendChild(p);
+            playDataSeekSound();
+            
+            let baseDelay = 120 + Math.random() * 140;
+            if (bootLines[i].includes("TESTING")) baseDelay = 450;
+            if (bootLines[i].includes("BOOTING")) baseDelay = 600;
+            
+            await new Promise(r => setTimeout(r, baseDelay));
+        }
+
         setTimeout(() => {
             document.getElementById('bootLoader').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'flex';
-        }, 3000);
+            playHeavyClick();
+        }, 800);
     };
 
     function finishLogin() {
-        offName = document.getElementById('offName').value.toUpperCase();
-        unitID = document.getElementById('unitID').value.toUpperCase();
-        document.getElementById('userDisplay').innerText = `NODE: STATION_04 | AUTH: ${offName} (${unitID})`;
+        playHeavyClick();
+        const offName = document.getElementById('offName').value.toUpperCase();
+        const unitID = document.getElementById('unitID').value.toUpperCase();
+        document.getElementById('userDisplay').innerText = `NODE: 04 | AUTH: ${offName} [${unitID}]`;
         document.getElementById('loginScreen').style.display = 'none';
         setTab('ARREST', document.querySelector('.tab'));
-        playTick();
-    }
-
-    function toggleLexicon() {
-        const sidebar = document.querySelector('.sidebar');
-        sidebar.style.display = (sidebar.style.display === 'none') ? 'block' : 'none';
-        playTick();
     }
 
     function setTab(type, el) {
+        playHeavyClick();
         currentTab = type;
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         el.classList.add('active');
-        playTick();
         const container = document.getElementById('dynamicFields');
         container.innerHTML = '';
-
+        
         if(type === 'INCIDENT' || type === 'MISSING') {
             container.innerHTML = `
-                <div class="terminal-zone">
-                    <span class="zone-label">MODULE I: INVOLVED PARTIES LIST</span>
+                <div class="terminal-panel" style="margin-bottom: 20px;">
+                    <span class="panel-label">MODULE I: INVOLVED PARTIES</span>
                     <div id="peopleList"></div>
-                    <button type="button" class="btn" style="padding:5px 12px; font-size:0.65rem; background:#151006; color:var(--amber); border:1px solid var(--amber-dim);" onclick="addPersonRow()">+ Add Person File</button>
+                    <button type="button" class="btn" style="padding:6px 15px; font-size:0.75rem; margin-top:10px; background:var(--bg-deep); color:var(--amber-bright);" onclick="addPersonRow()">+ ADD PERSON FILE</button>
                 </div>
             `;
             if(type === 'MISSING') {
                 container.innerHTML += `
-                    <div class="terminal-zone" style="margin-top:12px;">
-                        <span class="zone-label">GEOGRAPHIC PARAMETERS</span>
-                        <label>Last Known Location Coordinates / Intersections:</label>
-                        <input type="text" id="lastLoc" placeholder="e.g. Integrity Way / San Andreas Ave...">
+                    <div class="terminal-panel" style="margin-bottom: 20px;">
+                        <span class="panel-label">GEOGRAPHIC PARAMETERS</span>
+                        <input type="text" id="lastLoc" class="data-input" placeholder="Last Known Location Coordinates / Intersections...">
                     </div>
                 `;
             }
@@ -446,67 +594,108 @@
     }
 
     function addPersonRow() {
+        playClick();
         const box = document.getElementById('peopleList');
         const div = document.createElement('div');
-        div.style.display = 'flex'; div.style.gap = '8px'; div.style.marginBottom = '8px';
+        div.className = 'person-row';
         div.innerHTML = `
-            <select style="width:160px; margin:0;" class="p-type"><option>Suspect</option><option>Victim</option><option>Witness</option><option>Missing</option></select>
-            <input type="text" style="flex:2; margin:0;" class="p-name" placeholder="Full Legal Name / Recognized Aliases">
-            <button type="button" class="btn" style="background:var(--alert-red); color:white; padding:0 15px;" onclick="this.parentElement.remove()">REMOVE</button>
+            <select class="person-select p-type">
+                <option>Suspect</option><option>Victim</option><option>Witness</option><option>Missing</option>
+            </select>
+            <input type="text" style="flex:2;" class="data-input p-name" placeholder="Full Legal Name / Recognized Aliases">
+            <button type="button" class="btn" style="background:var(--alert-red); color:white; border:none; padding:0 15px;" onclick="playHeavyClick(); this.parentElement.remove()">X</button>
         `;
         box.appendChild(div);
-        playTick();
     }
 
-    function printReport() {
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    async function initiatePrintSequence() {
+        playHeavyClick();
+        const btn = document.getElementById('printBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const statusBox = document.getElementById('printStatusBox');
+        const printer = document.getElementById('printerDisplay');
+        
+        btn.disabled = true;
+        copyBtn.style.display = 'none';
+        printer.classList.remove('printing');
+        printer.style.overflowY = 'hidden';
+        printer.style.display = 'none';
+        
+        void printer.offsetWidth; 
+        
         const rank = document.getElementById('rankSel').value;
+        const offName = document.getElementById('offName').value;
         const nar = document.getElementById('narrative').value;
         const evi = document.getElementById('evidence').value;
         const add = document.getElementById('addActions').value;
         const checks = Array.from(document.querySelectorAll('#actionsMatrix input:checked')).map(c => c.value);
 
+        // Strict layout parsing to perfectly lock to requested submission architecture
+        const now = new Date();
+        const timestamp = now.toLocaleString('en-US');
+        
         let out = `**[ LSPD CENTRAL DATABASE ]**\n`;
-        out += `**REPORT TYPE:** ${currentTab}\n`;
+        out += `**TYPE :** ${currentTab}\n`;
         out += `**OFFICER:** ${rank} ${offName}\n`;
-        out += `**UNIT:** ${unitID}\n`;
-        out += `**TIMESTAMP REGISTER:** ${new Date().toLocaleString()}\n`;
+        out += `**TIMESTAMP :** ${timestamp}\n`;
         out += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-
-        if(currentTab === 'INCIDENT' || currentTab === 'MISSING') {
-            out += `**INVOLVED PERSONS:**\n`;
-            document.querySelectorAll('#peopleList > div').forEach(row => {
-                out += `- [${row.querySelector('.p-type').value}] ${row.querySelector('.p-name').value || "UNKNOWN/UNSTATED"}\n`;
-            });
-            if(currentTab === 'MISSING') out += `\n**LAST KNOWN LOCATION:** ${document.getElementById('lastLoc').value || "Unknown/Not logged."}\n`;
-            out += `\n`;
-        }
-
-        out += `**NARRATIVE LOG:**\n${nar || "No historical event logged."}\n\n`;
-
+        
+        out += `**NARRATIVE LOG:**\n`;
+        out += `${nar || "No historical event logged."}\n\n`;
+        
         out += `**EVIDENCE STORE:**\n`;
         if (evi.trim()) {
-            evi.split('\n').filter(l => l.trim() !== '').forEach(line => out += `- ${line.trim()}\n`);
-        } else { out += ` None logged.\n`; }
+            evi.split('\n').filter(l => l.trim() !== '').forEach(line => {
+                if(line.trim().startsWith('-')) {
+                    out += `${line.trim()}\n`;
+                } else {
+                    out += `- ${line.trim()}\n`;
+                }
+            });
+        } else { 
+            out += `- None logged.\n`; 
+        }
         out += `\n`;
 
-        out += `**ACTIONS INITIATED:**\n➔ ${checks.join(' | ') || "No operational procedures ticked."}\n\n`;
-        if(add) out += `**ADDITIONAL PROCEDURES:**\n➔ ${add}\n`;
+        out += `**ACTIONS INITIATED:**\n${checks.join(' | ') || "None."}\n\n`;
+        
+        out += `**ADDITIONAL PROCEDURES:**\n${add || "None."}\n\n`;
 
-        const paper = document.getElementById('outputPaper');
-        paper.innerText = out;
-        paper.classList.remove('printing-active');
-        void paper.offsetWidth;
-        paper.classList.add('printing-active');
-        document.getElementById('copyBtn').style.display = 'block';
-        playPrinterSound();
+        out += `*** END OF REPORT ***`;
+
+        document.getElementById('paperContent').innerText = out;
+
+        statusBox.style.display = 'block';
+        statusBox.innerHTML = "> INITIATING SPOOLER...<br>";
+        await sleep(600);
+        statusBox.innerHTML += "> CONNECTING TO CENTRAL MAINFRAME... [OK]<br>";
+        await sleep(600);
+        statusBox.innerHTML += "> COMPILING ENCRYPTED PACKETS... [OK]<br>";
+        await sleep(600);
+        statusBox.innerHTML += "> SENDING TO LOCAL DOT-MATRIX PRINTER...<br>";
+        
+        await sleep(400);
+        printer.style.display = 'block';
+        printer.classList.add('printing');
+        startPrinterSound();
+
+        await sleep(6000); 
+        stopPrinterSound();
+        statusBox.innerHTML += "> <span style='color:var(--amber-bright)'>PRINT COMPLETE. RECORD ARCHIVED.</span>";
+        
+        printer.style.overflowY = 'auto'; 
+        btn.disabled = false;
+        copyBtn.style.display = 'block';
+        playHeavyClick();
     }
 
     function copyReport() {
-        navigator.clipboard.writeText(document.getElementById('outputPaper').innerText);
-        alert("DATA LOG SHIPPED TO SYSTEM CLIPBOARD.");
+        playHeavyClick();
+        navigator.clipboard.writeText(document.getElementById('paperContent').innerText);
+        alert('DATA LOG SECURELY COPIED TO SYSTEM CLIPBOARD.');
     }
-
-    document.addEventListener('keydown', (e) => { if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') playTick(); });
 </script>
 
 </body>
