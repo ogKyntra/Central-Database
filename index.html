@@ -8,19 +8,25 @@
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;600&display=swap');
 
         :root {
-            --amber: #ffb000;
-            --amber-bright: #ffc44d;
-            --amber-dim: #7c5600;
-            --amber-ghost: #261a00;
+            /* Electric Cyan / Cyberpunk Theme */
+            --theme: #00d8ff;
+            --theme-bright: #80ebff;
+            --theme-dim: #006c80;
+            --theme-ghost: #002b33;
             --crt-green: #33ff33;
-            --bg-deep: #050402;
-            --bezel: #111;
-            --alert-red: #cc0000;
+            --bg-deep: #020405; 
+            --bezel: #0b1114;
+            --alert-red: #ff3333;
         }
+
+        ::-webkit-scrollbar { width: 14px; }
+        ::-webkit-scrollbar-track { background: #0a0c0f; border-left: 2px solid var(--theme-ghost); }
+        ::-webkit-scrollbar-thumb { background: var(--theme-dim); border: 1px solid var(--theme); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--theme-bright); }
 
         body {
             background-color: #000;
-            color: var(--amber);
+            color: var(--theme);
             font-family: 'Share Tech Mono', 'Courier New', monospace;
             margin: 0; padding: 10px;
             display: flex; justify-content: center; align-items: center;
@@ -32,187 +38,220 @@
             background: var(--bezel);
             padding: 25px;
             border-radius: 30px;
-            border-bottom: 20px solid #0a0a0a;
+            border-bottom: 20px solid #080c0e;
             box-shadow: 0 40px 100px rgba(0,0,0,1), inset 0 0 10px rgba(255,255,255,0.05);
             width: 1500px;
             max-width: 98vw;
             position: relative;
         }
 
-        /* Completely stabilized display framework with zero refresh flickers or stutters */
         .screen {
             background-color: var(--bg-deep);
-            border: 10px solid #050505;
+            border: 10px solid #05070a;
             border-radius: 15px;
             height: 90vh;
             display: flex;
+            flex-direction: column;
             position: relative;
             overflow: hidden;
-            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+            box-shadow: inset 0 0 120px rgba(0,0,0,0.95);
         }
 
-        /* 100% Static pixel mask geometry - absolutely no motion or scrolling to protect eyes */
         .screen::after {
             content: " "; display: block; position: absolute;
             top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.4) 50%);
-            z-index: 100; background-size: 100% 4px; pointer-events: none;
-            box-shadow: inset 0 0 60px rgba(255, 176, 0, 0.05);
+            z-index: 100; pointer-events: none;
+            box-shadow: inset 0 0 60px rgba(0, 216, 255, 0.05);
         }
 
+        .ui-container { display: flex; flex: 1; overflow: hidden; position: relative; z-index: 5; }
+
         .sidebar {
-            width: 320px;
-            border-right: 2px solid var(--amber-dim);
-            padding: 25px;
-            background: rgba(8, 6, 2, 0.8);
-            font-size: 0.85rem;
-            overflow-y: auto;
-            z-index: 5;
+            width: 320px; border-right: 2px solid var(--theme-dim); padding: 25px;
+            background: rgba(4, 6, 8, 0.8); font-size: 0.85rem; overflow-y: auto;
+            transition: all 0.2s ease-in-out; scroll-behavior: smooth;
         }
 
         .main-content {
-            flex: 1; display: flex; flex-direction: column;
-            padding: 30px; overflow-y: auto; z-index: 5; gap: 20px;
+            flex: 1; display: flex; flex-direction: column; padding: 30px; overflow-y: auto; gap: 20px; scroll-behavior: smooth;
         }
 
         #bootLoader {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-deep); z-index: 3000; padding: 40px 50px; color: var(--crt-green);
             display: flex; flex-direction: column; gap: 4px; font-size: 1rem;
-            box-sizing: border-box; overflow-y: hidden;
+            box-sizing: border-box; overflow-y: hidden; text-shadow: 0 0 5px var(--crt-green);
         }
 
-        /* Vintage Kyntra OS Terminal Login Panel */
+        #bootTransition {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-deep); z-index: 2500; display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        @keyframes loadBar { 0% { left: -50%; } 100% { left: 100%; } }
+
         #loginScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             background: var(--bg-deep); z-index: 2000; display: none; 
             flex-direction: column; justify-content: center; align-items: center;
         }
 
-        .login-banner {
-            color: var(--amber-bright); font-size: 1.4rem; letter-spacing: 2px; margin-bottom: 5px; font-weight: bold;
-        }
+        .login-banner { color: var(--theme-bright); font-size: 1.4rem; letter-spacing: 2px; margin-bottom: 5px; font-weight: bold; text-shadow: 0 0 10px var(--theme-bright); }
 
         .terminal-panel {
-            border: 2px solid var(--amber-dim);
-            padding: 20px;
-            background: rgba(10, 8, 4, 0.6);
-            position: relative;
-            box-shadow: inset 0 0 20px rgba(255, 176, 0, 0.02);
-            transition: border-color 0.2s;
+            border: 2px solid var(--theme-dim); padding: 20px; 
+            background: linear-gradient(135deg, rgba(4, 8, 10, 0.8) 0%, rgba(2, 4, 5, 0.9) 100%);
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(0, 216, 255, 0.02) 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(0, 216, 255, 0.02) 20px);
+            position: relative; box-shadow: inset 0 0 20px rgba(0, 216, 255, 0.02); transition: border-color 0.2s;
         }
-        .terminal-panel:focus-within {
-            border-color: var(--amber-bright);
-        }
+        .terminal-panel:focus-within { border-color: var(--theme-bright); box-shadow: inset 0 0 40px rgba(0, 216, 255, 0.08); }
 
         .panel-label {
-            position: absolute; top: -10px; left: 15px;
-            background: var(--bg-deep); padding: 0 10px;
-            font-size: 0.8rem; color: var(--amber-bright);
-            letter-spacing: 1px; font-weight: bold; text-transform: uppercase;
+            position: absolute; top: -10px; left: 15px; background: var(--bg-deep); padding: 0 10px;
+            font-size: 0.8rem; color: var(--theme-bright); letter-spacing: 1px; font-weight: bold; text-transform: uppercase;
         }
 
         .data-input {
-            font-family: 'Inter', sans-serif;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid var(--amber-dim);
-            color: #fff;
-            padding: 12px; width: 100%; box-sizing: border-box;
-            transition: all 0.2s;
+            font-family: 'Inter', sans-serif; font-size: 0.85rem; line-height: 1.5;
+            background: rgba(0, 0, 0, 0.7); border: 1px solid var(--theme-dim); color: #fff;
+            padding: 12px; width: 100%; box-sizing: border-box; transition: all 0.2s;
         }
         .data-input:focus {
-            outline: none; border-color: var(--amber-bright);
-            background: rgba(20, 14, 5, 0.8); box-shadow: 0 0 10px rgba(255, 176, 0, 0.2);
+            outline: none; border-color: var(--theme-bright); background: rgba(5, 14, 20, 0.9); 
+            box-shadow: 0 0 15px rgba(0, 216, 255, 0.3); text-shadow: 0 0 4px rgba(255,255,255,0.4);
         }
 
-        .actions-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 10px; padding-top: 10px;
-        }
+        .actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 10px; padding-top: 10px; }
         .grid-category-header {
-            grid-column: span 4; font-size: 0.75rem; color: var(--amber-dim);
-            border-bottom: 1px solid var(--amber-ghost); padding-bottom: 4px;
-            margin-top: 10px; letter-spacing: 1.5px;
+            grid-column: span 4; font-size: 0.75rem; color: var(--theme-dim);
+            border-bottom: 1px solid var(--theme-ghost); padding-bottom: 4px; margin-top: 10px; letter-spacing: 1.5px;
         }
 
         .action-item { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
-        .action-item label { cursor: pointer; color: var(--amber); }
+        .action-item label { cursor: pointer; color: var(--theme); transition: 0.1s; }
+        .action-item label:hover { color: var(--theme-bright); text-shadow: 0 0 5px var(--theme-dim); }
         
         input[type="checkbox"] {
             appearance: none; width: 16px; height: 16px; flex-shrink: 0;
-            border: 1px solid var(--amber-dim); background: #000; cursor: pointer; position: relative;
+            border: 1px solid var(--theme-dim); background: #000; cursor: pointer; position: relative;
         }
-        input[type="checkbox"]:checked { border-color: var(--amber-bright); background: var(--amber-ghost); }
-        input[type="checkbox"]:checked::after {
-            content: "X"; color: var(--amber-bright); position: absolute;
-            top: -1px; left: 3px; font-size: 12px; font-weight: bold;
-        }
+        input[type="checkbox"]:checked { border-color: var(--theme-bright); background: var(--theme-ghost); }
+        input[type="checkbox"]:checked::after { content: "X"; color: var(--theme-bright); position: absolute; top: -1px; left: 3px; font-size: 12px; font-weight: bold; }
 
-        .tab-bar { display: flex; gap: 10px; border-bottom: 2px solid var(--amber-dim); padding-bottom: 10px; }
+        .tab-bar { display: flex; gap: 4px; border-bottom: 2px solid var(--theme-dim); padding-bottom: 0px; }
         .tab { 
-            padding: 8px 20px; color: var(--amber-dim); cursor: pointer; 
-            font-size: 0.9rem; text-transform: uppercase; font-weight: bold; transition: 0.2s;
+            padding: 10px 20px; color: var(--theme-dim); cursor: pointer; font-size: 0.9rem; text-transform: uppercase; font-weight: bold; transition: 0.2s;
+            border: 1px solid transparent; border-bottom: none; border-radius: 4px 4px 0 0;
         }
-        .tab:hover { color: var(--amber-bright); }
-        .tab.active { background: var(--amber); color: #000; }
+        .tab:hover { color: var(--theme-bright); background: rgba(0, 216, 255, 0.05); }
+        .tab.active { background: rgba(0, 216, 255, 0.1); color: var(--theme-bright); border-color: var(--theme-dim); text-shadow: 0 0 8px var(--theme-dim); }
 
         .btn {
-            background: var(--amber-dim); color: #000; border: 2px solid var(--amber);
+            background: var(--theme-dim); color: #000; border: 2px solid var(--theme);
             padding: 12px 24px; font-weight: bold; cursor: pointer; text-transform: uppercase; 
             font-family: inherit; letter-spacing: 1px; font-size: 0.9rem; transition: all 0.2s;
         }
-        .btn:hover:not(:disabled) { background: var(--amber-bright); box-shadow: 0 0 15px rgba(255, 176, 0, 0.4); }
+        .btn:hover:not(:disabled) { background: var(--theme-bright); box-shadow: 0 0 15px rgba(0, 216, 255, 0.4); }
+        .btn:active:not(:disabled) { transform: scale(0.98); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-toggle { background: transparent; color: var(--theme-dim); border: 1px solid var(--theme-dim); padding: 4px 10px; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; font-family: inherit; transition: 0.2s;}
+        .btn-toggle:hover { color: var(--theme-bright); border-color: var(--theme-bright); background: rgba(0, 216, 255, 0.1); }
 
         #printStatusBox {
             background: #000; border: 1px dashed var(--crt-green); color: var(--crt-green);
-            padding: 15px; margin-bottom: 20px; display: none; font-size: 0.85rem; line-height: 1.6;
+            padding: 15px; margin-bottom: 20px; display: none; font-size: 0.85rem; line-height: 1.6; text-shadow: 0 0 4px var(--crt-green);
         }
         
+        /* OVERHAULED PRINTER CSS FOR DYNAMIC HEIGHT */
         .printer-container {
-            width: 100%; height: 350px; position: relative;
-            background: #111; border: 2px solid #222; display: none;
-            overflow-y: hidden;
-            box-shadow: inset 0 20px 30px rgba(0,0,0,0.8);
+            width: 100%; height: 450px; position: relative;
+            background: linear-gradient(to bottom, #1a1c1f 0%, #0d0f12 100%); 
+            border: 3px solid #111; border-radius: 8px; display: none; overflow: hidden;
+            box-shadow: inset 0 30px 40px rgba(0,0,0,0.9), 0 10px 20px rgba(0,0,0,0.5);
+            perspective: 1000px; margin-top: 20px; margin-bottom: 20px;
+        }
+        .printer-container::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 25px;
+            background: #050608; border-top: 2px solid #000; box-shadow: 0 -10px 15px rgba(0,0,0,0.9); z-index: 10;
         }
         
-        .paper-wrapper { min-height: 100%; }
-        .printing .paper-wrapper { animation: feedPaper 6.0s linear forwards; }
-        
-        @keyframes feedPaper {
-            0% { transform: translateY(350px); }
-            100% { transform: translateY(0); }
+        .paper-wrapper { 
+            height: 100%; 
+            overflow-y: auto; 
+            padding: 20px 40px 60px 40px; /* Pushes the start of paper down so it emerges cleanly */
+            box-sizing: border-box; 
+            transform-origin: bottom center; 
+            transform: rotateX(15deg); 
+            scrollbar-width: none; /* Hide scrollbar inside the printer slot */
         }
+        .paper-wrapper::-webkit-scrollbar { display: none; }
         
         .paper {
-            background: #e6e3dc; color: #111; font-family: 'Share Tech Mono', monospace;
-            padding: 30px; font-size: 0.8rem; line-height: 1.4; white-space: pre-wrap;
-            position: relative; width: 100%; box-sizing: border-box; min-height: 350px;
-            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+            background: #f4f7f8; color: #111; font-family: 'Share Tech Mono', monospace;
+            padding: 40px 50px; font-size: 0.85rem; line-height: 1.5; white-space: pre-wrap;
+            position: relative; width: 100%; box-sizing: border-box; min-height: 100%;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.7);
+            background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px); background-size: 100% 24px; 
         }
+
+        /* Strict Markdown Render Classes */
+        .paper .bold { font-weight: 900; font-size: 1.15em; color: #000; }
+        .paper .italic { font-style: italic; }
+        .paper .bold-italic { font-weight: 900; font-style: italic; font-size: 1.15em; color: #000; }
         
         .paper-holes {
-            position: absolute; left: 5px; top: 0; bottom: 0; width: 10px;
-            background-image: radial-gradient(#333 30%, transparent 35%);
-            background-size: 10px 20px;
+            position: absolute; left: -20px; top: 0; bottom: 0; width: 40px;
+            background-image: radial-gradient(circle at 20px 12px, #050608 5px, transparent 6px);
+            background-size: 40px 24px; border-right: 1px dashed rgba(0,0,0,0.15); background-color: #f4f7f8;
         }
-        .paper-holes.right { left: auto; right: 5px; }
+        .paper-holes.right { left: auto; right: -20px; border-right: none; border-left: 1px dashed rgba(0,0,0,0.15); }
         
         .person-row { display: flex; gap: 8px; margin-bottom: 8px; }
-        .person-select { width: 160px; font-family: 'Inter', sans-serif; padding: 10px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--amber-dim); }
+        .person-select { width: 160px; font-family: 'Inter', sans-serif; padding: 10px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid var(--theme-dim); }
+
+        @media print {
+            body { background: none; padding: 0; margin: 0; }
+            .monitor { display: none !important; }
+            #powerButtonScreen { display: none !important; }
+            #printBody { display: block !important; color: black; font-family: 'Courier New', monospace; font-size: 12pt; white-space: pre-wrap; margin: 20px;}
+        }
+
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 5px var(--theme-bright); } 50% { box-shadow: 0 0 20px var(--theme-bright); } 100% { box-shadow: 0 0 5px var(--theme-bright); } }
+        .ai-loading { animation: pulseGlow 1.5s infinite; border-color: var(--theme-bright) !important; color: var(--theme-bright) !important; }
     </style>
 </head>
 <body>
 
+<div id="printBody" style="display:none;"></div>
+
 <div class="monitor">
     <div class="screen">
+        <div id="powerButtonScreen" style="position: absolute; top:0; left:0; width:100%; height:100%; background: var(--bg-deep); z-index: 9999; display: flex; justify-content: center; align-items: center;">
+            <button class="btn" onclick="startSystemBoot()" style="font-size: 1.5rem; padding: 20px 40px; border-color: var(--crt-green); color: var(--crt-green); text-shadow: 0 0 10px var(--crt-green); box-shadow: 0 0 20px rgba(51, 255, 51, 0.2);">⏻ INITIALIZE SYSTEM</button>
+        </div>
         
         <div id="bootLoader"></div>
 
+        <div id="bootTransition">
+            <pre style="color:var(--theme-bright); font-size:1.2rem; font-weight:bold; letter-spacing:2px; text-shadow:0 0 15px var(--theme-bright); margin-bottom: 20px; text-align: center;">
+██╗  ██╗██╗   ██╗███╗   ██╗████████╗██████╗  █████╗ 
+██║ ██╔╝╚██╗ ██╔╝████╗  ██║╚══██╔══╝██╔══██╗██╔══██╗
+█████╔╝  ╚████╔╝ ██╔██╗ ██║   ██║   ██████╔╝███████║
+██╔═██╗   ╚██╔╝  ██║╚██╗██║   ██║   ██╔══██╗██╔══██║
+██║  ██╗   ██║   ██║ ╚████║   ██║   ██║  ██║██║  ██║
+╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝
+            </pre>
+            <div style="width:350px; height:4px; background:var(--theme-dim); margin:20px 0; position:relative; overflow:hidden; box-shadow: 0 0 10px var(--theme-dim);">
+                <div style="position:absolute; height:100%; width:40%; background:var(--theme-bright); animation:loadBar 1.2s infinite linear; box-shadow: 0 0 15px var(--theme-bright);"></div>
+            </div>
+            <div style="color:var(--theme); font-size:0.8rem; letter-spacing:2px; text-shadow: 0 0 5px var(--theme-dim);">MOUNTING LOCAL ENVIRONMENT WORKSTATION...</div>
+        </div>
+
         <div id="loginScreen">
             <div class="login-banner">KYNTRA OS v4.22.1</div>
-            <div style="color: var(--amber-dim); font-size:0.8rem; letter-spacing: 1.5px; margin-bottom:25px;">MULTITASKING LOCAL ENVIRONMENT TERMINAL HOST</div>
+            <div style="color: var(--theme-dim); font-size:0.8rem; letter-spacing: 1.5px; margin-bottom:25px;">MULTITASKING LOCAL ENVIRONMENT TERMINAL HOST</div>
             
             <div class="terminal-panel" style="width: 480px; text-align: left; padding: 30px;">
                 <span class="panel-label">SECURITY CHALLENGE INITIALIZED</span>
@@ -222,113 +261,173 @@
                 </div>
 
                 <div style="margin-bottom:15px;">
-                    <label style="display:block; font-size:0.8rem; color:var(--amber-dim); margin-bottom:6px;">OPERATOR IDENTITY NAME:</label>
-                    <input type="text" class="data-input" id="offName" value="LEVI PORTER" style="font-family:'Share Tech Mono'; letter-spacing:1px; color:var(--amber-bright);">
+                    <label style="display:block; font-size:0.8rem; color:var(--theme-dim); margin-bottom:6px;">OPERATOR IDENTITY NAME:</label>
+                    <input type="text" class="data-input" id="offName" value="LEVI PORTER" style="font-family:'Share Tech Mono'; letter-spacing:1px; color:var(--theme-bright);">
                 </div>
 
                 <div style="margin-bottom:25px;">
-                    <label style="display:block; font-size:0.8rem; color:var(--amber-dim); margin-bottom:6px;">ASSIGNED STATION/UNIT CALLSIGN:</label>
-                    <input type="text" class="data-input" id="unitID" value="1A-37" style="font-family:'Share Tech Mono'; letter-spacing:1px; color:var(--amber-bright);">
+                    <label style="display:block; font-size:0.8rem; color:var(--theme-dim); margin-bottom:6px;">ASSIGNED STATION/UNIT CALLSIGN:</label>
+                    <input type="text" class="data-input" id="unitID" value="1A-37" style="font-family:'Share Tech Mono'; letter-spacing:1px; color:var(--theme-bright);">
                 </div>
 
                 <button class="btn" style="width:100%" onclick="finishLogin()">ESTABLISH SECURE LINK</button>
+            </div>
+        </div>
 
-                <div style="margin-top:20px; display:flex; justify-content:space-between; font-size:0.7rem; color:var(--amber-dim)">
-                    <span>PORT: 04 // BAUD: 9600</span>
-                    <span>CRYPT STATE: DES-EE3</span>
+        <div class="ui-container">
+            <div class="sidebar" id="lexiconSidebar">
+                <h3 style="margin-top:0; border-bottom:1px solid var(--theme); padding-bottom:10px; color:var(--theme-bright);">// SYNTAX LEXICON</h3>
+                <div style="display:flex; flex-direction:column; gap: 14px;">
+                    <div><div style="color:#666; text-decoration:line-through;">I saw him</div> <span style="color:#fff;">"Observed suspect on scene"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">He ran away</div> <span style="color:#fff;">"Suspect fled on foot"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">I caught him</div> <span style="color:#fff;">"Suspect apprehended"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Put cuffs on</div> <span style="color:#fff;">"Secured in double-locked restraints"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Checking car</div> <span style="color:#fff;">"Conducted lawful vehicle search"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Searched pockets</div> <span style="color:#fff;">"Conducted a protective pat-down search"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">He was mad</div> <span style="color:#fff;">"Suspect was uncooperative/combative"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Yelled at me</div> <span style="color:#fff;">"Subject became verbally hostile"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Told him to stop</div> <span style="color:#fff;">"Issued lawful verbal commands"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Didn't listen</div> <span style="color:#fff;">"Failed to comply with physical direction"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Found a gun</div> <span style="color:#fff;">"Firearm weapon mechanism recovered"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Found drugs</div> <span style="color:#fff;">"Discovered suspected illegal narcotics"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">He was high</div> <span style="color:#fff;">"Showed signs of substance impairment"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Smelled weed</div> <span style="color:#fff;">"Detected distinct odor of marijuana"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Pulled him over</div> <span style="color:#fff;">"Initiated a marked vehicle traffic stop"</span></div>
+                    <div><div style="color:#666; text-decoration:line-through;">Got out of car</div> <span style="color:#fff;">"Exited the primary patrol vehicle"</span></div>
                 </div>
             </div>
-        </div>
 
-        <div class="sidebar">
-            <h3 style="margin-top:0; border-bottom:1px solid var(--amber); padding-bottom:10px; color:var(--amber-bright);">// SYNTAX LEXICON</h3>
-            <div style="display:flex; flex-direction:column; gap: 15px;">
-                <div><div style="color:#666; text-decoration:line-through;">I saw him</div> <span style="color:#fff;">"Observed suspect on scene"</span></div>
-                <div><div style="color:#666; text-decoration:line-through;">He ran away</div> <span style="color:#fff;">"Suspect fled on foot"</span></div>
-                <div><div style="color:#666; text-decoration:line-through;">I caught him</div> <span style="color:#fff;">"Suspect apprehended"</span></div>
-                <div><div style="color:#666; text-decoration:line-through;">Checking car</div> <span style="color:#fff;">"Conducted vehicle search"</span></div>
-                <div><div style="color:#666; text-decoration:line-through;">He was mad</div> <span style="color:#fff;">"Suspect was uncooperative"</span></div>
-                <div><div style="color:#666; text-decoration:line-through;">Found a gun</div> <span style="color:#fff;">"Firearm recovered"</span></div>
-                <div><div style="color:#666; text-decoration:line-through;">He was high</div> <span style="color:#fff;">"Showed signs of impairment"</span></div>
-            </div>
-        </div>
-
-        <div class="main-content" id="mainWorkspace">
-            
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span id="userDisplay" style="font-size:0.9rem; color:var(--amber-bright); font-weight:bold;">NODE: 04 | AUTH: ---</span>
-                <select id="rankSel" class="data-input" style="width:auto; font-family:'Share Tech Mono'; padding:8px;">
-                    <option value="[Police Officer I]">Police Officer I (✕)</option>
-                    <option value="[Police Officer II]">Police Officer II (▽)</option>
-                    <option value="[Police Officer III]">Police Officer III (▼)</option>
-                    <option value="[Sergeant]">Sergeant (👮)</option>
-                    <option value="[Sergeant II]">Sergeant II (👮 Locked)</option>
-                    <option value="[Lieutenant]">Lieutenant (⚡)</option>
-                    <option value="[Captain]">Captain (⚓)</option>
-                    <option value="[Commander]">Commander (★)</option>
-                    <option value="[Deputy Chief of Police]">Deputy Chief of Police (★★)</option>
-                    <option value="[Assistant Chief of Police]">Assistant Chief of Police (★★★)</option>
-                    <option value="[Chief of Police]">Chief of Police (★★★★)</option>
-                    <option value="[Deputy Commissioner]">Deputy Commissioner (—)</option>
-                    <option value="[Commissioner]">Commissioner (🦅)</option>
-                </select>
-            </div>
-
-            <div class="tab-bar">
-                <div class="tab active" onclick="setTab('ARREST', this)">ARREST</div>
-                <div class="tab" onclick="setTab('CITATION', this)">CITATION</div>
-                <div class="tab" onclick="setTab('INCIDENT', this)">INCIDENT</div>
-                <div class="tab" onclick="setTab('MISSING', this)">MISSING PERSON</div>
-            </div>
-
-            <div id="dynamicFields"></div>
-
-            <div class="terminal-panel">
-                <span class="panel-label">NARRATIVE & EVIDENCE</span>
-                <label style="display:block; margin-bottom:5px; color:var(--amber-dim);">Incident Summary:</label>
-                <textarea id="narrative" class="data-input" rows="4" placeholder="Detail the sequence of events..."></textarea>
+            <div class="main-content" id="mainWorkspace">
                 
-                <label style="display:block; margin-top:15px; margin-bottom:5px; color:var(--amber-dim);">Evidence Log:</label>
-                <textarea id="evidence" class="data-input" rows="2" placeholder="List items seized (each on a new line)..."></textarea>
-            </div>
-
-            <div class="terminal-panel">
-                <span class="panel-label">ACTIONS INITIATED</span>
-                <div class="actions-grid" id="actionsMatrix">
-                    <div class="grid-category-header">CORE RESPONSES</div>
-                    <div class="action-item"><input type="checkbox" id="a1" value="MIRANDA READ"><label for="a1">MIRANDA READ</label></div>
-                    <div class="action-item"><input type="checkbox" id="a2" value="DETAINED"><label for="a2">DETAINED</label></div>
-                    <div class="action-item"><input type="checkbox" id="a3" value="FOOT PURSUIT"><label for="a3">FOOT PURSUIT</label></div>
-                    <div class="action-item"><input type="checkbox" id="a4" value="VEH. SEARCH"><label for="a4">VEH. SEARCH</label></div>
-                    <div class="action-item"><input type="checkbox" id="a5" value="WEAPON DRAWN"><label for="a5">WEAPON DRAWN</label></div>
-                    <div class="action-item"><input type="checkbox" id="a6" value="EMS CONTACTED"><label for="a6">EMS CONTACTED</label></div>
-                    <div class="action-item"><input type="checkbox" id="a7" value="SPIKE STRIPS"><label for="a7">SPIKE STRIPS</label></div>
-                    <div class="action-item"><input type="checkbox" id="a8" value="PIT EXECUTED"><label for="a8">PIT EXECUTED</label></div>
-                </div>
-            </div>
-
-            <div class="terminal-panel">
-                <span class="panel-label">POST-ACTION PROTOCOL</span>
-                <input type="text" id="addActions" class="data-input" placeholder="Additional procedures (e.g. Forwarded to Traffic Division units)...">
-            </div>
-
-            <div id="printStatusBox"></div>
-
-            <div class="printer-container" id="printerDisplay">
-                <div class="paper-wrapper" id="paperWrapper">
-                    <div class="paper" id="outputPaper">
-                        <div class="paper-holes"></div><div class="paper-holes right"></div>
-                        <div id="paperContent"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        <span id="userDisplay" style="font-size:0.9rem; color:var(--theme-bright); font-weight:bold; text-shadow: 0 0 5px var(--theme-dim);">NODE: 04 | AUTH: ---</span>
+                        <button class="btn-toggle" onclick="toggleLexicon()">[ Toggle Lexicon ]</button>
+                    </div>
+                    <div style="display:flex; align-items:center; gap: 15px;">
+                        <span id="hexTicker" style="font-size:0.75rem; color:var(--theme-ghost);">0x00000000</span>
+                        <span id="sysClock" style="font-size:0.9rem; font-weight:bold; color:var(--theme-bright); text-shadow: 0 0 5px var(--theme-dim);">00:00:00</span>
+                        <select id="rankSel" class="data-input" style="width:auto; font-family:'Share Tech Mono'; padding:8px;">
+                            <option value="[Police Officer I]">Police Officer I (✕)</option>
+                            <option value="[Police Officer II]">Police Officer II (▽)</option>
+                            <option value="[Police Officer III]">Police Officer III (▼)</option>
+                            <option value="[Sergeant]">Sergeant (👮)</option>
+                            <option value="[Sergeant II]">Sergeant II (👮 Locked)</option>
+                            <option value="[Lieutenant]">Lieutenant (⚡)</option>
+                            <option value="[Captain]">Captain (⚓)</option>
+                            <option value="[Commander]">Commander (★)</option>
+                            <option value="[Deputy Chief of Police]">Deputy Chief of Police (★★)</option>
+                            <option value="[Assistant Chief of Police]">Assistant Chief of Police (★★★)</option>
+                            <option value="[Chief of Police]">Chief of Police (★★★★)</option>
+                            <option value="[Deputy Commissioner]">Deputy Commissioner (—)</option>
+                            <option value="[Commissioner]">Commissioner (🦅)</option>
+                        </select>
                     </div>
                 </div>
-            </div>
 
-            <div style="display:flex; gap:15px;" id="actionButtons">
-                <button class="btn" id="printBtn" style="flex:1" onclick="initiatePrintSequence()">🖨️ COMPILE & PRINT</button>
-                <button class="btn" id="copyBtn" style="display:none; flex:1" onclick="copyReport()">📋 COPY TO CLIPBOARD</button>
-                <button class="btn" style="background:transparent; color:var(--alert-red); border-color:var(--alert-red);" onclick="location.reload()">REBOOT</button>
+                <div class="tab-bar">
+                    <div class="tab active" onclick="setTab('ARREST', this)">ARREST</div>
+                    <div class="tab" onclick="setTab('CITATION', this)">CITATION</div>
+                    <div class="tab" onclick="setTab('INCIDENT', this)">INCIDENT</div>
+                    <div class="tab" onclick="setTab('MISSING', this)">MISSING PERSON</div>
+                    <div class="tab" style="color:var(--crt-green);" onclick="setTab('NCIC', this)">NCIC DATABASE</div>
+                </div>
+
+                <div id="dynamicFields"></div>
+
+                <div id="standardForms">
+                    <div class="terminal-panel" style="margin-bottom: 20px;">
+                        <span class="panel-label">NARRATIVE & EVIDENCE</span>
+                        
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                            <label style="color:var(--theme-dim);">Incident Summary:</label>
+                            <button class="btn-toggle" style="color:var(--theme-bright); border-color:var(--theme-bright); font-weight:bold;" onclick="enhanceNarrative()">[ ✨ AI NEURAL ENHANCE ]</button>
+                        </div>
+                        <textarea id="narrative" class="data-input" rows="4" placeholder="Detail the sequence of events... Type shorthand notes here and click AI ENHANCE to formalize."></textarea>
+                        
+                        <label style="display:block; margin-top:15px; margin-bottom:5px; color:var(--theme-dim);">Evidence Log:</label>
+                        <textarea id="evidence" class="data-input" rows="2" placeholder="List items seized (each on a new line)..."></textarea>
+                    </div>
+
+                    <div class="terminal-panel" style="margin-bottom: 20px;">
+                        <span class="panel-label">ACTIONS INITIATED</span>
+                        <div class="actions-grid" id="actionsMatrix">
+                            <div class="grid-category-header">CORE RESPONSES</div>
+                            <div class="action-item"><input type="checkbox" id="a1" value="MIRANDA READ"><label for="a1">MIRANDA READ</label></div>
+                            <div class="action-item"><input type="checkbox" id="a2" value="DETAINED"><label for="a2">DETAINED</label></div>
+                            <div class="action-item"><input type="checkbox" id="a3" value="ARRESTED"><label for="a3">ARRESTED</label></div>
+                            <div class="action-item"><input type="checkbox" id="a4" value="FOOT PURSUIT"><label for="a4">FOOT PURSUIT</label></div>
+                            <div class="action-item"><input type="checkbox" id="a5" value="VEHICLE PURSUIT"><label for="a5">VEH PURSUIT</label></div>
+                            <div class="action-item"><input type="checkbox" id="a6" value="CODE 3 RESPONSE"><label for="a6">CODE 3 RESP.</label></div>
+                            <div class="action-item"><input type="checkbox" id="a7" value="BACKUP REQUESTED"><label for="a7">BACKUP REQ.</label></div>
+                            <div class="action-item"><input type="checkbox" id="a8" value="SUPERVISOR REQ."><label for="a8">SUPERVISOR</label></div>
+
+                            <div class="grid-category-header">TACTICAL & FORCE INTERVENTIONS</div>
+                            <div class="action-item"><input type="checkbox" id="b1" value="WEAPON DRAWN"><label for="b1">WEAPON DRAWN</label></div>
+                            <div class="action-item"><input type="checkbox" id="b2" value="TASER DEPLOYED"><label for="b2">TASER DEPLOYED</label></div>
+                            <div class="action-item"><input type="checkbox" id="b3" value="LESS-LETHAL ENGAGED"><label for="b3">LESS-LETHAL</label></div>
+                            <div class="action-item"><input type="checkbox" id="b4" value="K9 DEPLOYED"><label for="b4">K9 DEPLOYED</label></div>
+                            <div class="action-item"><input type="checkbox" id="b5" value="SPIKE STRIPS"><label for="b5">SPIKE STRIPS</label></div>
+                            <div class="action-item"><input type="checkbox" id="b6" value="PIT EXECUTED"><label for="b6">PIT EXECUTED</label></div>
+                            <div class="action-item"><input type="checkbox" id="b7" value="FELONY STOP PROTOCOL"><label for="b7">FELONY STOP</label></div>
+                            <div class="action-item"><input type="checkbox" id="b8" value="RAMMING EXECUTED"><label for="b8">RAMMING EXEC.</label></div>
+
+                            <div class="grid-category-header">SEARCH, SEIZURE & SCENE CONTROL</div>
+                            <div class="action-item"><input type="checkbox" id="c1" value="VEH. SEARCH"><label for="c1">VEH. SEARCH</label></div>
+                            <div class="action-item"><input type="checkbox" id="c2" value="PERSON SEARCH"><label for="c2">PERSON SEARCH</label></div>
+                            <div class="action-item"><input type="checkbox" id="c3" value="PROPERTY SEARCH"><label for="c3">PROP. SEARCH</label></div>
+                            <div class="action-item"><input type="checkbox" id="c4" value="CONTRABAND SEIZED"><label for="c4">CONTRABAND</label></div>
+                            <div class="action-item"><input type="checkbox" id="c5" value="GUN RECOVERED"><label for="c5">GUN RECOVERED</label></div>
+                            <div class="action-item"><input type="checkbox" id="c6" value="DRUGS SEIZED"><label for="c6">DRUGS SEIZED</label></div>
+                            <div class="action-item"><input type="checkbox" id="c7" value="VEHICLE IMPOUNDED"><label for="c7">IMPOUNDED</label></div>
+                            <div class="action-item"><input type="checkbox" id="c8" value="SCENE SECURED"><label for="c8">SCENE SECURED</label></div>
+
+                            <div class="grid-category-header">ADMINISTRATIVE & MEDICAL</div>
+                            <div class="action-item"><input type="checkbox" id="d1" value="EMS CONTACTED"><label for="d1">EMS CONTACTED</label></div>
+                            <div class="action-item"><input type="checkbox" id="d2" value="FIRE DEPT CONTACTED"><label for="d2">FIRE DEPT</label></div>
+                            <div class="action-item"><input type="checkbox" id="d3" value="BREATHALYZER"><label for="d3">BREATHALYZER</label></div>
+                            <div class="action-item"><input type="checkbox" id="d4" value="GSR TEST"><label for="d4">GSR TEST</label></div>
+                            <div class="action-item"><input type="checkbox" id="d5" value="DNA SAMPLE"><label for="d5">DNA SAMPLE</label></div>
+                            <div class="action-item"><input type="checkbox" id="d6" value="CITATION ISSUED"><label for="d6">CITATION ISSUED</label></div>
+                            <div class="action-item"><input type="checkbox" id="d7" value="WARNING ISSUED"><label for="d7">WARNING ISSUED</label></div>
+                            <div class="action-item"><input type="checkbox" id="d8" value="BODYCAM UPLOADED"><label for="d8">BODYCAM UP</label></div>
+                        </div>
+
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--theme-ghost);">
+                            <label style="color:var(--theme-dim); font-size:0.75rem; margin-bottom:5px; display:block;">ADD CUSTOM ACTIONS INDEX:</label>
+                            <div style="display:flex; gap:10px;">
+                                <input type="text" id="customActionInput" class="data-input" placeholder="e.g. WARRANT SEARCH UNDERTAKEN..." style="flex:1;">
+                                <button class="btn" style="padding: 8px 15px; font-size:0.7rem;" onclick="addCustomAction()">+ ADD</button>
+                            </div>
+                            <div class="actions-grid" id="customActionsGrid" style="padding-top:10px; margin-bottom:0; display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px 10px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="terminal-panel" style="margin-bottom: 20px;">
+                        <span class="panel-label">POST-ACTION PROTOCOL</span>
+                        <input type="text" id="addActions" class="data-input" placeholder="Additional procedures (e.g. Forwarded to Traffic Division units)...">
+                    </div>
+                </div>
+
+                <div id="printStatusBox"></div>
+
+                <div class="printer-container" id="printerDisplay">
+                    <div class="paper-wrapper" id="paperWrapper">
+                        <div class="paper" id="outputPaper">
+                            <div class="paper-holes"></div><div class="paper-holes right"></div>
+                            <div id="paperContent"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:15px;" id="actionButtons">
+                    <button class="btn" id="printBtn" style="flex:2" onclick="initiatePrintSequence()">🖨️ COMPILE & PRINT</button>
+                    <button class="btn" id="copyBtn" style="display:none; flex:1" onclick="copyReport()">📋 COPY MARKDOWN</button>
+                    <button class="btn" id="hardcopyBtn" style="display:none; flex:1; background:var(--crt-green); color:#000; border-color:var(--crt-green);" onclick="triggerHardcopy()">📠 HARDCOPY EXPORT</button>
+                    <button class="btn" style="background:transparent; color:var(--alert-red); border-color:var(--alert-red);" onclick="localStorage.removeItem('gemini_api_key'); alert('API KEY SECURELY PURGED FROM LOCAL STORAGE.');">🔑 RESET KEY</button>
+                    <button class="btn" style="background:transparent; color:var(--alert-red); border-color:var(--alert-red);" onclick="clearReport()">🗑️ CLEAR</button>
+                </div>
             </div>
-            
         </div>
     </div>
 </div>
@@ -338,270 +437,417 @@
     let currentTab = "ARREST";
     let noiseBuffer = null;
     let activePrinterNodes = [];
+    let printJobID = 0; 
+    let globalRawMarkdownOutput = ""; 
+
+    let localNCIC = JSON.parse(localStorage.getItem('kyntraNCIC')) || [];
+
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('sysClock').innerText = now.toLocaleTimeString('en-US', {hour12: false}) + " HRS";
+        document.getElementById('hexTicker').innerText = '0x' + Math.floor(Math.random()*16777215).toString(16).padStart(8, '0').toUpperCase();
+    }, 1000);
 
     function getNoiseBuffer() {
         if (noiseBuffer) return noiseBuffer;
         const size = audioCtx.sampleRate * 2;
         const buffer = audioCtx.createBuffer(1, size, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
-        for (let i = 0; i < size; i++) {
-            data[i] = Math.random() * 2 - 1;
-        }
-        noiseBuffer = buffer;
-        return noiseBuffer;
+        for (let i = 0; i < size; i++) { data[i] = Math.random() * 2 - 1; }
+        noiseBuffer = buffer; return noiseBuffer;
     }
+
+    function playHoverBlip() {
+        if(audioCtx.state === 'suspended') return;
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.015, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+    }
+
+    document.addEventListener('mouseover', (e) => {
+        if(e.target.classList.contains('btn') || e.target.classList.contains('tab') || e.target.classList.contains('btn-toggle')) {
+            playHoverBlip();
+        }
+    });
 
     function playClick() {
         if(audioCtx.state === 'suspended') audioCtx.resume();
-        
-        const clickNoise = audioCtx.createBufferSource();
-        clickNoise.buffer = getNoiseBuffer();
-        const noiseFilter = audioCtx.createBiquadFilter();
-        noiseFilter.type = 'bandpass';
-        noiseFilter.frequency.setValueAtTime(1300, audioCtx.currentTime);
-        noiseFilter.Q.setValueAtTime(5, audioCtx.currentTime);
-        
-        const noiseGain = audioCtx.createGain();
-        noiseGain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.012);
-        
-        const frameThump = audioCtx.createOscillator();
-        frameThump.type = 'triangle';
-        frameThump.frequency.setValueAtTime(135, audioCtx.currentTime);
-        frameThump.frequency.exponentialRampToValueAtTime(45, audioCtx.currentTime + 0.025);
-        
-        const thumpGain = audioCtx.createGain();
-        thumpGain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        thumpGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.025);
-        
+        const clickNoise = audioCtx.createBufferSource(); clickNoise.buffer = getNoiseBuffer();
+        const noiseFilter = audioCtx.createBiquadFilter(); noiseFilter.type = 'bandpass'; noiseFilter.frequency.setValueAtTime(1000 + (Math.random() * 500), audioCtx.currentTime); noiseFilter.Q.setValueAtTime(5, audioCtx.currentTime);
+        const noiseGain = audioCtx.createGain(); noiseGain.gain.setValueAtTime(0.03, audioCtx.currentTime); noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.012);
+        const frameThump = audioCtx.createOscillator(); frameThump.type = 'triangle'; frameThump.frequency.setValueAtTime(135 + (Math.random() * 20), audioCtx.currentTime); frameThump.frequency.exponentialRampToValueAtTime(45, audioCtx.currentTime + 0.025);
+        const thumpGain = audioCtx.createGain(); thumpGain.gain.setValueAtTime(0.1, audioCtx.currentTime); thumpGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.025);
         clickNoise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(audioCtx.destination);
         frameThump.connect(thumpGain); thumpGain.connect(audioCtx.destination);
-        
-        clickNoise.start(); clickNoise.stop(audioCtx.currentTime + 0.02);
-        frameThump.start(); frameThump.stop(audioCtx.currentTime + 0.03);
+        clickNoise.start(); clickNoise.stop(audioCtx.currentTime + 0.02); frameThump.start(); frameThump.stop(audioCtx.currentTime + 0.03);
     }
 
     function playHeavyClick() {
         if(audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(85, audioCtx.currentTime);
-        osc.frequency.linearRampToValueAtTime(25, audioCtx.currentTime + 0.07);
-        
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(220, audioCtx.currentTime);
-        
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.07);
-        
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(85, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(25, audioCtx.currentTime + 0.07);
+        const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.setValueAtTime(220, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.07);
         osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + 0.07);
     }
 
+    function playPrintFinishSound() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(); osc.type = 'square';
+        osc.frequency.setValueAtTime(60, audioCtx.currentTime); osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.15);
+        const gain = audioCtx.createGain(); gain.gain.setValueAtTime(0.3, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+        osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+    }
+
+    function playPostBeep() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'square'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime); gain.gain.setValueAtTime(0, audioCtx.currentTime + 0.15);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+    }
+
+    function playHDDSpinUp() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(40, audioCtx.currentTime); osc.frequency.linearRampToValueAtTime(120, audioCtx.currentTime + 2); 
+        gain.gain.setValueAtTime(0.01, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 2); gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 5);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 5);
+    }
+
+    function playModemHandshake() {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(); const osc2 = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.type = 'square'; osc.frequency.setValueAtTime(2100, audioCtx.currentTime); osc.frequency.setValueAtTime(1100, audioCtx.currentTime + 0.5); osc.frequency.linearRampToValueAtTime(2400, audioCtx.currentTime + 1);
+        osc2.type = 'sawtooth'; osc2.frequency.setValueAtTime(1800, audioCtx.currentTime); osc2.frequency.linearRampToValueAtTime(900, audioCtx.currentTime + 0.8);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+        osc.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 1.5); osc2.start(); osc2.stop(audioCtx.currentTime + 1.5);
+    }
+
     function playCRTBootSound() {
         if(audioCtx.state === 'suspended') audioCtx.resume();
-        
-        const degauss = audioCtx.createOscillator();
-        degauss.type = 'sine';
-        degauss.frequency.setValueAtTime(55, audioCtx.currentTime);
-        degauss.frequency.linearRampToValueAtTime(12, audioCtx.currentTime + 0.7);
-        
-        const degGain = audioCtx.createGain();
-        degGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-        degGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
-        
-        degauss.connect(degGain); degGain.connect(audioCtx.destination);
-        degauss.start(); degauss.stop(audioCtx.currentTime + 0.7);
-        
-        const flyback = audioCtx.createOscillator();
-        flyback.type = 'sine';
-        flyback.frequency.setValueAtTime(6800, audioCtx.currentTime);
-        
-        const flyGain = audioCtx.createGain();
-        flyGain.gain.setValueAtTime(0.012, audioCtx.currentTime);
-        flyGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.2);
-        
-        flyback.connect(flyGain); flyGain.connect(audioCtx.destination);
-        flyback.start(); flyback.stop(audioCtx.currentTime + 2.2);
+        const degauss = audioCtx.createOscillator(); degauss.type = 'sine'; degauss.frequency.setValueAtTime(55, audioCtx.currentTime); degauss.frequency.linearRampToValueAtTime(12, audioCtx.currentTime + 0.7);
+        const degGain = audioCtx.createGain(); degGain.gain.setValueAtTime(0.5, audioCtx.currentTime); degGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
+        degauss.connect(degGain); degGain.connect(audioCtx.destination); degauss.start(); degauss.stop(audioCtx.currentTime + 0.7);
+        const flyback = audioCtx.createOscillator(); flyback.type = 'sine'; flyback.frequency.setValueAtTime(6800, audioCtx.currentTime);
+        const flyGain = audioCtx.createGain(); flyGain.gain.setValueAtTime(0.012, audioCtx.currentTime); flyGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.2);
+        flyback.connect(flyGain); flyGain.connect(audioCtx.destination); flyback.start(); flyback.stop(audioCtx.currentTime + 2.2);
     }
 
     function playDataSeekSound() {
         if(audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        const filter = audioCtx.createBiquadFilter();
-        
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(180 + (Math.random() * 300), audioCtx.currentTime);
-        
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(600, audioCtx.currentTime);
-        
-        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
-        
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); const filter = audioCtx.createBiquadFilter();
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(180 + (Math.random() * 300), audioCtx.currentTime);
+        filter.type = 'bandpass'; filter.frequency.setValueAtTime(600, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.04, audioCtx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
         osc.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
         osc.start(); osc.stop(audioCtx.currentTime + 0.04);
     }
 
     function startPrinterSound() {
-        if(audioCtx.state === 'suspended') audioCtx.resume();
-        stopPrinterSound();
+        if(audioCtx.state === 'suspended') audioCtx.resume(); stopPrinterSound();
+        const masterPrinterGain = audioCtx.createGain(); masterPrinterGain.gain.setValueAtTime(0.18, audioCtx.currentTime); masterPrinterGain.connect(audioCtx.destination);
+        const pinStrikes = audioCtx.createBufferSource(); pinStrikes.buffer = getNoiseBuffer(); pinStrikes.loop = true;
+        const pinFilter = audioCtx.createBiquadFilter(); pinFilter.type = 'bandpass'; pinFilter.frequency.setValueAtTime(2200, audioCtx.currentTime); pinFilter.Q.setValueAtTime(4, audioCtx.currentTime);
+        const pinModulator = audioCtx.createOscillator(); pinModulator.type = 'square'; pinModulator.frequency.setValueAtTime(85, audioCtx.currentTime);
+        const pinModGain = audioCtx.createGain(); pinModGain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+        const stepperMotor = audioCtx.createOscillator(); stepperMotor.type = 'sawtooth'; stepperMotor.frequency.setValueAtTime(140, audioCtx.currentTime);
+        const motorFilter = audioCtx.createBiquadFilter(); motorFilter.type = 'lowpass'; motorFilter.frequency.setValueAtTime(350, audioCtx.currentTime);
+        const carriageSweep = audioCtx.createOscillator(); carriageSweep.type = 'triangle'; carriageSweep.frequency.setValueAtTime(0.65, audioCtx.currentTime);
+        const sweepGain = audioCtx.createGain(); sweepGain.gain.setValueAtTime(25, audioCtx.currentTime);
         
-        const masterPrinterGain = audioCtx.createGain();
-        masterPrinterGain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-        masterPrinterGain.connect(audioCtx.destination);
-
-        const pinStrikes = audioCtx.createBufferSource();
-        pinStrikes.buffer = getNoiseBuffer();
-        pinStrikes.loop = true;
-        
-        const pinFilter = audioCtx.createBiquadFilter();
-        pinFilter.type = 'bandpass';
-        pinFilter.frequency.setValueAtTime(2200, audioCtx.currentTime);
-        pinFilter.Q.setValueAtTime(4, audioCtx.currentTime);
-        
-        const pinModulator = audioCtx.createOscillator();
-        pinModulator.type = 'square';
-        pinModulator.frequency.setValueAtTime(85, audioCtx.currentTime);
-        
-        const pinModGain = audioCtx.createGain();
-        pinModGain.gain.setValueAtTime(0.7, audioCtx.currentTime);
-        
-        const stepperMotor = audioCtx.createOscillator();
-        stepperMotor.type = 'sawtooth';
-        stepperMotor.frequency.setValueAtTime(140, audioCtx.currentTime);
-        
-        const motorFilter = audioCtx.createBiquadFilter();
-        motorFilter.type = 'lowpass';
-        motorFilter.frequency.setValueAtTime(350, audioCtx.currentTime);
-        
-        const carriageSweep = audioCtx.createOscillator();
-        carriageSweep.type = 'triangle';
-        carriageSweep.frequency.setValueAtTime(0.65, audioCtx.currentTime);
-        
-        const sweepGain = audioCtx.createGain();
-        sweepGain.gain.setValueAtTime(25, audioCtx.currentTime);
-        
-        carriageSweep.connect(sweepGain); sweepGain.connect(stepperMotor.frequency);
-        pinModulator.connect(pinModGain); pinModGain.connect(pinFilter.frequency);
-        pinStrikes.connect(pinFilter); pinFilter.connect(masterPrinterGain);
-        stepperMotor.connect(motorFilter); motorFilter.connect(masterPrinterGain);
+        carriageSweep.connect(sweepGain); sweepGain.connect(stepperMotor.frequency); pinModulator.connect(pinModGain); pinModGain.connect(pinFilter.frequency);
+        pinStrikes.connect(pinFilter); pinFilter.connect(masterPrinterGain); stepperMotor.connect(motorFilter); motorFilter.connect(masterPrinterGain);
         
         pinStrikes.start(); stepperMotor.start(); carriageSweep.start(); pinModulator.start();
         activePrinterNodes = [pinStrikes, stepperMotor, carriageSweep, pinModulator, masterPrinterGain];
     }
 
     function stopPrinterSound() {
-        if(activePrinterNodes.length > 0) {
-            activePrinterNodes.forEach(node => { try { node.stop(); } catch(e){} });
-            activePrinterNodes = [];
-        }
+        if(activePrinterNodes.length > 0) { activePrinterNodes.forEach(node => { try { node.stop(); } catch(e){} }); activePrinterNodes = []; }
     }
 
-    document.addEventListener('keydown', (e) => {
-        if(e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') playClick();
-    });
-    document.addEventListener('change', (e) => {
-        if(e.target.tagName === 'SELECT' || e.target.type === 'checkbox') playHeavyClick();
-    });
+    document.addEventListener('keydown', (e) => { if(e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') playClick(); });
+    document.addEventListener('change', (e) => { if(e.target.tagName === 'SELECT' || e.target.type === 'checkbox') playHeavyClick(); });
 
     const bootLines = [
-        "KYNTRA SYSTEMS INC. BYTESIZE BIOS V3.01 CORE",
-        "COPR. 1986-1994 ALL RIGHTS RESERVED.",
-        "--------------------------------------------------",
-        "CPU: KYNTRA-68030 PRO processor @ 40 MHz",
-        "TESTING BASE MEMORY: 640 KB OK",
-        "TESTING EXTENDED MEMORY: 15360 KB OK",
-        "VERIFYING SYSTEM VECTORS... SUCCESSFUL",
-        "DETECTING COMPACT DISK DRIVES... NONE FOUND",
-        "MOUNTAIN STORAGE DEVICE... PRIMARY MASTER MATCHED [KNTR-540MB]",
-        "READING TRACK 0 SYSTEM CONFIGURATION BOOT SECTOR...",
-        " ",
-        "BOOTING Kyntra OS v4.22.1 ...",
-        "LOAD SYSTEM REGISTRY BASE PACKET... [ DONE ]",
-        "INITIALIZING TCP/IP NETWORK EMULATOR DEVICING MODULE...",
-        "UPLINK SECURED -> LSPD CENTRAL DATABANK TERMINAL ROUTE",
-        "ESTABLISHING CRYPTO GRAPHIC HANDSHAKE WITH MAIN FRAME NODE 04...",
-        "REMOTE ACCESS GRANTED. TERMINAL DESK PROTOCOL ENGAGED.",
-        "LAUNCHING MDT-SHELL INTERFACE ENGINE..."
+        "KYNTRA SYSTEMS INC. BYTESIZE BIOS V3.01 CORE", "COPR. 1986-1994 ALL RIGHTS RESERVED.", "--------------------------------------------------",
+        "CPU: KYNTRA-68030 PRO processor @ 40 MHz", "TESTING BASE MEMORY: 640 KB OK", "TESTING EXTENDED MEMORY: 15360 KB OK",
+        "VERIFYING SYSTEM VECTORS... SUCCESSFUL", "DETECTING COMPACT DISK DRIVES... NONE FOUND", "MOUNTAIN STORAGE DEVICE... PRIMARY MASTER MATCHED [KNTR-540MB]",
+        "READING TRACK 0 SYSTEM CONFIGURATION BOOT SECTOR...", " ", "BOOTING Kyntra OS v4.22.1 ...",
+        "LOAD SYSTEM REGISTRY BASE PACKET... [ DONE ]", "INITIALIZING TCP/IP NETWORK EMULATOR DEVICING MODULE...",
+        "UPLINK SECURED -> LSPD CENTRAL DATABANK TERMINAL ROUTE", "ESTABLISHING CRYPTO GRAPHIC HANDSHAKE WITH MAIN FRAME NODE 04...",
+        "REMOTE ACCESS GRANTED. TERMINAL DESK PROTOCOL ENGAGED.", "LAUNCHING MDT-SHELL INTERFACE ENGINE..."
     ];
 
-    window.onload = async function() {
+    async function startSystemBoot() {
+        document.getElementById('powerButtonScreen').style.display = 'none'; 
         playCRTBootSound();
+        setTimeout(playPostBeep, 800);
+        setTimeout(playHDDSpinUp, 1200);
+
         const loader = document.getElementById('bootLoader');
         
         for(let i = 0; i < bootLines.length; i++) {
             const p = document.createElement('p');
-            if(bootLines[i].includes("Kyntra OS")) p.style.color = "var(--amber-bright)";
+            if(bootLines[i].includes("Kyntra OS")) p.style.color = "var(--theme-bright)";
             if(bootLines[i].includes("MDT-SHELL")) p.style.color = "#ffffff";
+            p.innerText = bootLines[i]; loader.appendChild(p); playDataSeekSound();
             
-            p.innerText = bootLines[i];
-            loader.appendChild(p);
-            playDataSeekSound();
-            
+            if(bootLines[i].includes("ESTABLISHING CRYPTO")) {
+                playModemHandshake();
+                await sleep(1500); 
+            }
+
             let baseDelay = 120 + Math.random() * 140;
             if (bootLines[i].includes("TESTING")) baseDelay = 450;
             if (bootLines[i].includes("BOOTING")) baseDelay = 600;
-            
             await new Promise(r => setTimeout(r, baseDelay));
         }
 
         setTimeout(() => {
-            document.getElementById('bootLoader').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
-            playHeavyClick();
-        }, 800);
-    };
+            document.getElementById('bootLoader').style.display = 'none'; document.getElementById('bootTransition').style.display = 'flex'; playHeavyClick();
+            setTimeout(() => { document.getElementById('bootTransition').style.display = 'none'; document.getElementById('loginScreen').style.display = 'flex'; playHeavyClick(); }, 2500);
+        }, 600);
+    }
 
     function finishLogin() {
         playHeavyClick();
-        const offName = document.getElementById('offName').value.toUpperCase();
-        const unitID = document.getElementById('unitID').value.toUpperCase();
+        const offName = document.getElementById('offName').value.toUpperCase(); const unitID = document.getElementById('unitID').value.toUpperCase();
         document.getElementById('userDisplay').innerText = `NODE: 04 | AUTH: ${offName} [${unitID}]`;
-        document.getElementById('loginScreen').style.display = 'none';
-        setTab('ARREST', document.querySelector('.tab'));
+        document.getElementById('loginScreen').style.display = 'none'; setTab('ARREST', document.querySelector('.tab'));
+    }
+
+    function toggleLexicon() {
+        playHeavyClick(); const sidebar = document.getElementById('lexiconSidebar');
+        sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function addCustomAction() {
+        const val = document.getElementById('customActionInput').value.toUpperCase().trim();
+        if(val) {
+            const container = document.getElementById('customActionsGrid'); const div = document.createElement('div'); div.className = 'action-item'; const id = 'ca_' + Date.now();
+            div.innerHTML = `<input type="checkbox" id="${id}" value="${val}" checked><label for="${id}">${val}</label>`;
+            container.appendChild(div); document.getElementById('customActionInput').value = ''; playClick();
+        }
+    }
+
+    async function enhanceNarrative() {
+        playClick();
+        const narInput = document.getElementById('narrative');
+        let rawText = narInput.value.trim();
+
+        if (!rawText || rawText === "ESTABLISHING NEURAL LINK... PLEASE WAIT.") {
+            alert("PLEASE ENTER INITIAL LOG DATA TO ENHANCE.");
+            return;
+        }
+
+        const apiKey = localStorage.getItem('gemini_api_key') || prompt("SECURE NEURAL LINK REQUIRED.\n\nEnter your Gemini API Key to enable AI Enhancement:");
+        if (!apiKey) return;
+        localStorage.setItem('gemini_api_key', apiKey);
+
+        narInput.classList.add('ai-loading');
+        narInput.value = "ESTABLISHING NEURAL LINK... PLEASE WAIT.";
+        playDataSeekSound();
+
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{ 
+                            text: `You are an AI assistant built into a Los Santos Police Department terminal. Take the following rough officer notes and rewrite them into a formal, highly professional, objective police report narrative. Do not add made up facts, just professionalize the tone. Give me ONLY the rewritten narrative text. Notes: ${rawText}` 
+                        }]
+                    }]
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.error) {
+                if(data.error.code === 400) {
+                    localStorage.removeItem('gemini_api_key');
+                    throw new Error("INVALID API KEY. PLEASE TRY AGAIN.");
+                }
+                throw new Error(data.error.message);
+            }
+
+            if (data.candidates && data.candidates.length > 0) {
+                narInput.value = data.candidates[0].content.parts[0].text.trim();
+                playPrintFinishSound();
+            } else {
+                throw new Error("Invalid response structure");
+            }
+        } catch (error) {
+            console.error(error);
+            narInput.value = rawText; 
+            alert(`NEURAL LINK FAILED: ${error.message}`);
+        } finally {
+            narInput.classList.remove('ai-loading');
+        }
+    }
+
+    function clearReport() {
+        playHeavyClick();
+        if(confirm("ALERT: ARE YOU SURE YOU WANT TO CLEAR THE CURRENT LOG REPORT DATA?")) {
+            printJobID++; stopPrinterSound(); 
+            document.getElementById('narrative').value = ''; document.getElementById('evidence').value = ''; document.getElementById('addActions').value = '';
+            document.querySelectorAll('#actionsMatrix input[type="checkbox"]').forEach(c => c.checked = false); document.getElementById('customActionsGrid').innerHTML = '';
+            
+            const peopleBox = document.getElementById('peopleList'); if(peopleBox) { peopleBox.innerHTML = ''; addPersonRow(); }
+            const loc = document.getElementById('lastLoc'); if(loc) loc.value = '';
+
+            const printer = document.getElementById('printerDisplay');
+            document.getElementById('paperContent').innerHTML = ''; // Clear actual printer contents
+            printer.style.display = 'none';
+            document.getElementById('printStatusBox').style.display = 'none'; document.getElementById('copyBtn').style.display = 'none'; document.getElementById('hardcopyBtn').style.display = 'none';
+            document.getElementById('printBtn').disabled = false;
+        }
+    }
+
+    function toggleNCICForm() {
+        playHeavyClick();
+        const form = document.getElementById('ncicAddForm');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function saveNCICRecord() {
+        playHeavyClick();
+        const name = document.getElementById('newNName').value.trim().toUpperCase();
+        const dob = document.getElementById('newNDOB').value.trim().toUpperCase();
+        const plate = document.getElementById('newNPlate').value.trim().toUpperCase();
+        const props = document.getElementById('newNProps').value.trim().toUpperCase();
+        const warrant = document.getElementById('newNWarrant').value;
+        const notes = document.getElementById('newNNotes').value.trim();
+
+        if(!name && !plate) {
+            alert("MUST PROVIDE A VALID NAME OR LICENSE PLATE.");
+            return;
+        }
+
+        localNCIC.push({ name, dob, plate, props, warrant, notes, id: Date.now() });
+        localStorage.setItem('kyntraNCIC', JSON.stringify(localNCIC));
+
+        document.getElementById('newNName').value = ''; document.getElementById('newNDOB').value = ''; document.getElementById('newNPlate').value = ''; document.getElementById('newNProps').value = ''; document.getElementById('newNNotes').value = '';
+        toggleNCICForm();
+        
+        document.getElementById('queryResults').innerHTML = `<span style='color:var(--crt-green); font-weight:bold;'>SUCCESS: LOCAL RECORD CREATED SECURELY.</span>`;
+    }
+
+    async function searchNCIC() {
+        playClick();
+        const query = document.getElementById('qSearch').value.trim().toUpperCase();
+        const resBox = document.getElementById('queryResults');
+        resBox.innerHTML = "<span style='color:var(--theme-dim)'>SEARCHING LOCAL MAINFRAME...</span>";
+        
+        await sleep(800); playDataSeekSound();
+        
+        if(query === "") {
+            resBox.innerHTML = "<span style='color:var(--alert-red)'>ERROR: NO SEARCH PARAMETERS PROVIDED.</span>";
+            return;
+        }
+
+        const results = localNCIC.filter(r => (r.name && r.name.includes(query)) || (r.plate && r.plate.includes(query)));
+
+        if(results.length > 0) {
+            playHeavyClick();
+            let html = `<span style='color:var(--crt-green); font-weight:bold;'>${results.length} RECORD(S) MATCHED</span><br><br>`;
+            results.forEach(r => {
+                let statusColor = r.warrant === 'WANTED' ? 'var(--alert-red)' : 'var(--crt-green)';
+                let wText = r.warrant === 'WANTED' ? '🚨 ACTIVE WARRANT 🚨' : 'CLEAR';
+                html += `<div style="border-bottom:1px dashed var(--theme-dim); padding-bottom:15px; margin-bottom:15px; background: rgba(0,0,0,0.4); padding: 15px; box-shadow: inset 0 0 10px rgba(0,216,255,0.02);">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                        <div><span style="color:var(--theme-dim);">NAME:</span> <span style="color:var(--theme-bright); font-weight:bold; font-size:1.1em;">${r.name || 'UNKNOWN'}</span></div>
+                        <div><span style="color:var(--theme-dim);">DOB:</span> <span style="color:#fff;">${r.dob || 'UNKNOWN'}</span></div>
+                    </div>
+                    <div style="margin-bottom:10px;"><span style="color:var(--theme-dim);">PLATE/ID:</span> <span style="color:var(--theme-bright); font-weight:bold;">${r.plate || 'UNKNOWN'}</span></div>
+                    <div style="margin-bottom:10px;"><span style="color:var(--theme-dim);">PROPERTIES:</span> <span style="color:#fff;">${r.props || 'None registered.'}</span></div>
+                    <div style="margin-bottom:10px;"><span style="color:var(--theme-dim);">STATUS:</span> <span style="color:${statusColor}; font-weight:bold;">${wText}</span></div>
+                    <div><span style="color:var(--theme-dim);">NOTES:</span> <span style="color:#fff;">${r.notes || 'None on file.'}</span></div>
+                </div>`;
+            });
+            resBox.innerHTML = html;
+        } else {
+            resBox.innerHTML = `<span style='color:var(--theme-dim);'>NO RECORDS FOUND FOR [${query}] IN LOCAL MAINFRAME.</span>`;
+        }
     }
 
     function setTab(type, el) {
-        playHeavyClick();
-        currentTab = type;
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        el.classList.add('active');
-        const container = document.getElementById('dynamicFields');
-        container.innerHTML = '';
+        playHeavyClick(); currentTab = type;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); el.classList.add('active');
+        const container = document.getElementById('dynamicFields'); container.innerHTML = '';
         
-        if(type === 'INCIDENT' || type === 'MISSING') {
+        if(type === 'NCIC') {
+            document.getElementById('standardForms').style.display = 'none'; document.getElementById('actionButtons').style.display = 'none'; 
             container.innerHTML = `
-                <div class="terminal-panel" style="margin-bottom: 20px;">
-                    <span class="panel-label">MODULE I: INVOLVED PARTIES</span>
-                    <div id="peopleList"></div>
-                    <button type="button" class="btn" style="padding:6px 15px; font-size:0.75rem; margin-top:10px; background:var(--bg-deep); color:var(--amber-bright);" onclick="addPersonRow()">+ ADD PERSON FILE</button>
+                <div class="terminal-panel" style="margin-bottom: 20px; border-color:var(--crt-green); box-shadow: inset 0 0 20px rgba(51, 255, 51, 0.05);">
+                    <span class="panel-label" style="color:var(--crt-green);">NCIC DATABASE ACCESS</span>
+                    
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 10px; align-items:center;">
+                        <label style="color:var(--theme-dim); font-size:0.8rem;">Database Search Protocol:</label>
+                        <button class="btn-toggle" style="color:var(--crt-green); border-color:var(--crt-green);" onclick="toggleNCICForm()">+ ADD NEW RECORD</button>
+                    </div>
+
+                    <div style="display:flex; gap:10px; margin-bottom: 20px;">
+                        <input type="text" id="qSearch" class="data-input" placeholder="Search by Name or License Plate..." style="flex:1; border-color:var(--crt-green);">
+                        <button class="btn" style="background:var(--crt-green); border-color:var(--crt-green); color:#000;" onclick="searchNCIC()">QUERY</button>
+                    </div>
+
+                    <div id="ncicAddForm" style="display:none; padding:20px; border:1px solid var(--theme-dim); background:rgba(0,0,0,0.8); margin-bottom:20px;">
+                        <span style="color:var(--theme-bright); font-weight:bold; display:block; margin-bottom:15px; border-bottom: 1px solid var(--theme-dim); padding-bottom:5px;">// CREATE NEW DATABASE ENTRY</span>
+                        <div style="display:flex; gap:10px; margin-bottom:10px;">
+                            <input type="text" id="newNName" class="data-input" placeholder="Full Legal Name" style="flex:1;">
+                            <input type="text" id="newNDOB" class="data-input" placeholder="DOB (MM/DD/YYYY)" style="flex:1;">
+                        </div>
+                        <input type="text" id="newNPlate" class="data-input" placeholder="License Plate / Serial Number" style="margin-bottom:10px;">
+                        <input type="text" id="newNProps" class="data-input" placeholder="Properties Owned / Registered Addresses" style="margin-bottom:10px;">
+                        <select id="newNWarrant" class="data-input" style="margin-bottom:10px;">
+                            <option value="CLEAR">STATUS: CLEAR / NO WARRANTS</option>
+                            <option value="WANTED">STATUS: ACTIVE WARRANT / WANTED</option>
+                        </select>
+                        <textarea id="newNNotes" class="data-input" rows="3" placeholder="Officer Notes, warnings, distinguishing marks..." style="margin-bottom:15px;"></textarea>
+                        <button class="btn" onclick="saveNCICRecord()" style="width:100%;">SAVE RECORD TO MAINFRAME</button>
+                    </div>
+
+                    <div id="queryResults" style="padding: 15px; border: 1px dashed var(--theme-dim); min-height:150px; font-family:'Share Tech Mono'; background:rgba(0,0,0,0.5);">
+                        <span style="color:var(--theme-ghost);">AWAITING INPUT...</span>
+                    </div>
                 </div>
             `;
-            if(type === 'MISSING') {
-                container.innerHTML += `
+        } else {
+            document.getElementById('standardForms').style.display = 'block'; document.getElementById('actionButtons').style.display = 'flex'; 
+            
+            if(type === 'INCIDENT' || type === 'MISSING') {
+                container.innerHTML = `
                     <div class="terminal-panel" style="margin-bottom: 20px;">
-                        <span class="panel-label">GEOGRAPHIC PARAMETERS</span>
-                        <input type="text" id="lastLoc" class="data-input" placeholder="Last Known Location Coordinates / Intersections...">
+                        <span class="panel-label">MODULE I: INVOLVED PARTIES</span>
+                        <div id="peopleList"></div>
+                        <button type="button" class="btn" style="padding:6px 15px; font-size:0.75rem; margin-top:10px; background:var(--bg-deep); color:var(--theme-bright);" onclick="addPersonRow()">+ ADD PERSON FILE</button>
                     </div>
                 `;
+                if(type === 'MISSING') {
+                    container.innerHTML += `
+                        <div class="terminal-panel" style="margin-bottom: 20px;">
+                            <span class="panel-label">GEOGRAPHIC PARAMETERS</span>
+                            <input type="text" id="lastLoc" class="data-input" placeholder="Last Known Location Coordinates / Intersections...">
+                        </div>
+                    `;
+                }
+                addPersonRow();
             }
-            addPersonRow();
         }
     }
 
     function addPersonRow() {
-        playClick();
-        const box = document.getElementById('peopleList');
-        const div = document.createElement('div');
-        div.className = 'person-row';
+        playClick(); const box = document.getElementById('peopleList'); const div = document.createElement('div'); div.className = 'person-row';
         div.innerHTML = `
-            <select class="person-select p-type">
-                <option>Suspect</option><option>Victim</option><option>Witness</option><option>Missing</option>
-            </select>
+            <select class="person-select p-type"><option>Suspect</option><option>Victim</option><option>Witness</option><option>Missing</option></select>
             <input type="text" style="flex:2;" class="data-input p-name" placeholder="Full Legal Name / Recognized Aliases">
             <button type="button" class="btn" style="background:var(--alert-red); color:white; border:none; padding:0 15px;" onclick="playHeavyClick(); this.parentElement.remove()">X</button>
         `;
@@ -611,91 +857,119 @@
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
     async function initiatePrintSequence() {
-        playHeavyClick();
-        const btn = document.getElementById('printBtn');
-        const copyBtn = document.getElementById('copyBtn');
-        const statusBox = document.getElementById('printStatusBox');
-        const printer = document.getElementById('printerDisplay');
+        playHeavyClick(); printJobID++; const currentJob = printJobID; 
+        const btn = document.getElementById('printBtn'); const copyBtn = document.getElementById('copyBtn'); const hardBtn = document.getElementById('hardcopyBtn');
+        const statusBox = document.getElementById('printStatusBox'); const printer = document.getElementById('printerDisplay');
+        const workspace = document.getElementById('mainWorkspace');
         
-        btn.disabled = true;
-        copyBtn.style.display = 'none';
-        printer.classList.remove('printing');
-        printer.style.overflowY = 'hidden';
+        btn.disabled = true; copyBtn.style.display = 'none'; hardBtn.style.display = 'none';
+        
+        // Reset dynamic printer container
+        document.getElementById('paperContent').innerHTML = '';
         printer.style.display = 'none';
         
-        void printer.offsetWidth; 
-        
-        const rank = document.getElementById('rankSel').value;
-        const offName = document.getElementById('offName').value;
-        const nar = document.getElementById('narrative').value;
-        const evi = document.getElementById('evidence').value;
-        const add = document.getElementById('addActions').value;
-        const checks = Array.from(document.querySelectorAll('#actionsMatrix input:checked')).map(c => c.value);
+        const rank = document.getElementById('rankSel').value; const offName = document.getElementById('offName').value;
+        const unitID = document.getElementById('unitID').value || "UNKNOWN"; const nar = document.getElementById('narrative').value;
+        const evi = document.getElementById('evidence').value; const add = document.getElementById('addActions').value;
+        const coreChecks = Array.from(document.querySelectorAll('#actionsMatrix input:checked')).map(c => c.value);
+        const customChecks = Array.from(document.querySelectorAll('#customActionsGrid input:checked')).map(c => c.value);
+        const checks = coreChecks.concat(customChecks);
 
-        // Strict layout parsing to perfectly lock to requested submission architecture
-        const now = new Date();
-        const timestamp = now.toLocaleString('en-US');
+        const now = new Date(); const timestamp = now.toLocaleString('en-US');
         
-        let out = `**[ LSPD CENTRAL DATABASE ]**\n`;
-        out += `**TYPE :** ${currentTab}\n`;
-        out += `**OFFICER:** ${rank} ${offName}\n`;
-        out += `**TIMESTAMP :** ${timestamp}\n`;
-        out += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+        let rawOut = `**[ LSPD CENTRAL DATABASE ]**\n`;
+        rawOut += `**TYPE:** ${currentTab}\n`;
+        rawOut += `**OFFICER:** ${rank} ${offName}\n`;
+        rawOut += `**UNIT:** ${unitID}\n`;
+        rawOut += `**TIMESTAMP:** ${timestamp}\n`;
+        rawOut += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
         
-        out += `**NARRATIVE LOG:**\n`;
-        out += `${nar || "No historical event logged."}\n\n`;
-        
-        out += `**EVIDENCE STORE:**\n`;
-        if (evi.trim()) {
-            evi.split('\n').filter(l => l.trim() !== '').forEach(line => {
-                if(line.trim().startsWith('-')) {
-                    out += `${line.trim()}\n`;
-                } else {
-                    out += `- ${line.trim()}\n`;
-                }
-            });
-        } else { 
-            out += `- None logged.\n`; 
+        rawOut += `**NARRATIVE LOG:**\n`;
+        if(currentTab === 'INCIDENT' || currentTab === 'MISSING') {
+            const people = document.querySelectorAll('#peopleList > div');
+            if(people.length > 0) {
+                rawOut += `*INVOLVED: `; let pArray = [];
+                people.forEach(row => { const pType = row.querySelector('.p-type').value; const pName = row.querySelector('.p-name').value || "UNKNOWN"; pArray.push(`[${pType}] ${pName}`); });
+                rawOut += pArray.join(', ') + `*\n`;
+            }
+            if(currentTab === 'MISSING') { const loc = document.getElementById('lastLoc'); rawOut += `*LAST KNOWN LOC: ${loc && loc.value ? loc.value : "Unknown"}*\n`; }
         }
-        out += `\n`;
-
-        out += `**ACTIONS INITIATED:**\n${checks.join(' | ') || "None."}\n\n`;
         
-        out += `**ADDITIONAL PROCEDURES:**\n${add || "None."}\n\n`;
+        let narLines = nar ? nar.split('\n') : ["No historical event logged."];
+        narLines.forEach(line => { if(line.trim() !== '') { rawOut += `*${line.trim()}*\n`; } else { rawOut += `\n`; } });
+        rawOut += `\n`;
+        
+        rawOut += `**EVIDENCE STORE:**\n`;
+        if (evi.trim()) {
+            evi.split('\n').filter(l => l.trim() !== '').forEach(line => { let cl = line.trim(); rawOut += cl.startsWith('-') ? `${cl}\n` : `- ${cl}\n`; });
+        } else { rawOut += `- None logged.\n`; }
+        rawOut += `\n`;
+        
+        rawOut += `**ACTIONS INITIATED:**\n${checks.join(' | ') || "None."}\n\n`;
+        rawOut += `**ADDITIONAL PROCEDURES:**\n${add || "None."}\n\n`;
+        rawOut += `*** END OF REPORT ***`;
 
-        out += `*** END OF REPORT ***`;
+        globalRawMarkdownOutput = rawOut;
 
-        document.getElementById('paperContent').innerText = out;
+        statusBox.style.display = 'block'; statusBox.innerHTML = "> INITIATING SPOOLER...<br>";
+        
+        workspace.scrollTo({ top: workspace.scrollHeight, behavior: 'smooth' });
 
-        statusBox.style.display = 'block';
-        statusBox.innerHTML = "> INITIATING SPOOLER...<br>";
-        await sleep(600);
+        await sleep(600); if (currentJob !== printJobID) return; 
         statusBox.innerHTML += "> CONNECTING TO CENTRAL MAINFRAME... [OK]<br>";
-        await sleep(600);
+        await sleep(600); if (currentJob !== printJobID) return; 
         statusBox.innerHTML += "> COMPILING ENCRYPTED PACKETS... [OK]<br>";
-        await sleep(600);
+        await sleep(600); if (currentJob !== printJobID) return; 
         statusBox.innerHTML += "> SENDING TO LOCAL DOT-MATRIX PRINTER...<br>";
+        await sleep(400); if (currentJob !== printJobID) return; 
         
-        await sleep(400);
-        printer.style.display = 'block';
-        printer.classList.add('printing');
+        // --- DYNAMIC LINE-BY-LINE PRINTER FEED ---
+        printer.style.display = 'block'; 
         startPrinterSound();
-
-        await sleep(6000); 
-        stopPrinterSound();
-        statusBox.innerHTML += "> <span style='color:var(--amber-bright)'>PRINT COMPLETE. RECORD ARCHIVED.</span>";
         
-        printer.style.overflowY = 'auto'; 
-        btn.disabled = false;
-        copyBtn.style.display = 'block';
+        let lines = rawOut.split('\n');
+        let paperWrapper = document.getElementById('paperWrapper');
+        let printContentHTML = ''; // For hardcopy 
+        
+        for(let i=0; i<lines.length; i++) {
+            if (currentJob !== printJobID) return;
+            
+            let line = lines[i];
+            
+            // Render markdown to HTML for visual
+            let formattedLine = line
+                .replace(/\*\*\*(.*?)\*\*\*/g, '<span class="bold-italic">$1</span>')
+                .replace(/\*\*(.*?)\*\*/g, '<span class="bold">$1</span>')
+                .replace(/\*(.*?)\*/g, '<span class="italic">$1</span>');
+                
+            if (formattedLine.trim() === '') formattedLine = '<br>';
+            else formattedLine = `<div>${formattedLine}</div>`;
+            
+            document.getElementById('paperContent').innerHTML += formattedLine;
+            printContentHTML += formattedLine;
+            
+            // Auto scroll paper as it prints to look like it's emerging
+            paperWrapper.scrollTop = paperWrapper.scrollHeight;
+            workspace.scrollTo({ top: workspace.scrollHeight, behavior: 'smooth' });
+            
+            // Dynamic typewriter delay based on characters
+            let delay = 30 + (line.length * 4);
+            await sleep(delay);
+        }
+        
+        stopPrinterSound(); playPrintFinishSound();
+        statusBox.innerHTML += "> <span style='color:var(--theme-bright)'>PRINT COMPLETE. RECORD ARCHIVED.</span>";
+        
+        document.getElementById('printBody').innerHTML = printContentHTML;
+        btn.disabled = false; copyBtn.style.display = 'block'; hardBtn.style.display = 'block';
         playHeavyClick();
     }
 
     function copyReport() {
-        playHeavyClick();
-        navigator.clipboard.writeText(document.getElementById('paperContent').innerText);
-        alert('DATA LOG SECURELY COPIED TO SYSTEM CLIPBOARD.');
+        playHeavyClick(); navigator.clipboard.writeText(globalRawMarkdownOutput); alert('MARKDOWN DATA LOG SECURELY COPIED TO SYSTEM CLIPBOARD.');
     }
+
+    function triggerHardcopy() { playHeavyClick(); window.print(); }
 </script>
 
 </body>
