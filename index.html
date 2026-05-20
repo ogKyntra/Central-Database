@@ -302,26 +302,6 @@
                         <span id="userDisplay" style="font-size:0.9rem; color:var(--theme-bright); font-weight:bold; text-shadow: 0 0 5px var(--theme-dim);">NODE: 04 | AUTH: ---</span>
                         <button class="btn-toggle" onclick="toggleLexicon()">[ Toggle Lexicon ]</button>
                     </div>
-                    <div style="display:flex; align-items:center; gap: 15px;">
-                        <span id="hexTicker" style="font-size:0.75rem; color:var(--theme-ghost);">0x00000000</span>
-                        <span id="sysClock" style="font-size:0.9rem; font-weight:bold; color:var(--theme-bright); text-shadow: 0 0 5px var(--theme-dim);">00:00:00</span>
-                        <select id="rankSel" class="data-input" style="width:auto; font-family:'Share Tech Mono'; padding:8px;">
-                            <option value="[Police Officer I]">Police Officer I (✕)</option>
-                            <option value="[Police Officer II]">Police Officer II (▽)</option>
-                            <option value="[Police Officer III]">Police Officer III (▼)</option>
-                            <option value="[Sergeant]">Sergeant (👮)</option>
-                            <option value="[Sergeant II]">Sergeant II (👮 Locked)</option>
-                            <option value="[Lieutenant]">Lieutenant (⚡)</option>
-                            <option value="[Captain]">Captain (⚓)</option>
-                            <option value="[Commander]">Commander (★)</option>
-                            <option value="[Deputy Chief of Police]">Deputy Chief of Police (★★)</option>
-                            <option value="[Assistant Chief of Police]">Assistant Chief of Police (★★★)</option>
-                            <option value="[Chief of Police]">Chief of Police (★★★★)</option>
-                            <option value="[Deputy Commissioner]">Deputy Commissioner (—)</option>
-                            <option value="[Commissioner]">Commissioner (🦅)</option>
-                        </select>
-                    </div>
-                </div>
 
                 <div class="tab-bar">
                     <div class="tab active" onclick="setTab('ARREST', this)">ARREST</div>
@@ -877,7 +857,7 @@
         
         let rawOut = `**[ LSPD CENTRAL DATABASE ]**\n`;
         rawOut += `**TYPE:** ${currentTab}\n`;
-        rawOut += `**OFFICER:** ${rank} ${offName}\n`;
+        rawOut += `**OFFICER:** ${offName}\n`;
         rawOut += `**UNIT:** ${unitID}\n`;
         rawOut += `**TIMESTAMP:** ${timestamp}\n`;
         rawOut += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
