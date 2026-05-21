@@ -259,8 +259,8 @@
                 </div>
 
                 <div style="margin-bottom:15px;">
-                    <label style="display:block; font-size:0.8rem; color:var(--theme-dim); margin-bottom:6px;">OPERATOR IDENTITY NAME:</label>
-                    <input type="text" class="data-input" id="offName" value="LEVI PORTER" style="font-family:'Share Tech Mono'; letter-spacing:1px; color:var(--theme-bright);">
+                    <label style="display:block; font-size:0.8rem; color:var(--theme-dim); margin-bottom:6px;">OPERATOR IDENTITY (Rank & Name):</label>
+                    <input type="text" class="data-input" id="offName" value="Officer Levi Porter" style="font-family:'Share Tech Mono'; letter-spacing:1px; color:var(--theme-bright);">
                 </div>
 
                 <div style="margin-bottom:25px;">
@@ -313,6 +313,7 @@
                     <div class="tab" onclick="setTab('CITATION', this)">CITATION</div>
                     <div class="tab" onclick="setTab('INCIDENT', this)">INCIDENT</div>
                     <div class="tab" onclick="setTab('MISSING', this)">MISSING PERSON</div>
+                    <div class="tab" onclick="setTab('WARRANT', this)">WARRANT</div>
                     <div class="tab" style="color:var(--crt-green);" onclick="setTab('NCIC', this)">NCIC DATABASE</div>
                 </div>
 
@@ -686,6 +687,11 @@
             const peopleBox = document.getElementById('peopleList'); if(peopleBox) { peopleBox.innerHTML = ''; addPersonRow(); }
             const loc = document.getElementById('lastLoc'); if(loc) loc.value = '';
 
+            const warType = document.getElementById('warType'); if(warType) warType.selectedIndex = 0;
+            const warTarget = document.getElementById('warTarget'); if(warTarget) warTarget.value = '';
+            const warCharges = document.getElementById('warCharges'); if(warCharges) warCharges.value = '';
+            const warReason = document.getElementById('warReason'); if(warReason) warReason.value = '';
+
             const printer = document.getElementById('printerDisplay');
             document.getElementById('paperContent').innerHTML = '';
             printer.style.display = 'none';
@@ -803,6 +809,35 @@
                     </div>
                 </div>
             `;
+        } else if (type === 'WARRANT') {
+            document.getElementById('standardForms').style.display = 'none'; 
+            document.getElementById('actionButtons').style.display = 'flex';
+            
+            container.innerHTML = `
+                <div class="terminal-panel" style="margin-bottom: 20px;">
+                    <span class="panel-label">WARRANT PARAMETERS</span>
+                    <div style="display:flex; gap:10px; margin-bottom:10px;">
+                        <select id="warType" class="data-input" style="flex:1;">
+                            <option value="Arrest">TYPE: Arrest</option>
+                            <option value="Search">TYPE: Search</option>
+                            <option value="Bench">TYPE: Bench</option>
+                            <option value="Extradition">TYPE: Extradition</option>
+                            <option value="Probation Violation">TYPE: Probation Violation</option>
+                            <option value="Material Witness">TYPE: Material Witness</option>
+                            <option value="Execution">TYPE: Execution</option>
+                            <option value="Parole Violation">TYPE: Parole Violation</option>
+                            <option value="Other">TYPE: Other</option>
+                        </select>
+                    </div>
+                    <input type="text" id="warTarget" class="data-input" placeholder="Location / Target Identity..." style="margin-bottom:10px;">
+                    
+                    <label style="display:block; margin-bottom:5px; color:var(--theme-dim);">Charges:</label>
+                    <textarea id="warCharges" class="data-input" rows="3" placeholder="List specific charges (each on a new line)..." style="margin-bottom:10px;"></textarea>
+                    
+                    <label style="display:block; margin-bottom:5px; color:var(--theme-dim);">Reason / Probable Cause:</label>
+                    <textarea id="warReason" class="data-input" rows="4" placeholder="Provide justification/reasoning for warrant..."></textarea>
+                </div>
+            `;
         } else {
             document.getElementById('standardForms').style.display = 'block'; document.getElementById('actionButtons').style.display = 'flex'; 
             
@@ -860,35 +895,76 @@
         const now = new Date(); const timestamp = now.toLocaleString('en-US');
         
         let rawOut = `**[ LSPD CENTRAL DATABASE ]**\n`;
-        rawOut += `**TYPE:** ${currentTab}\n`;
+        
+        if(currentTab === 'WARRANT') {
+            const wType = document.getElementById('warType') ? document.getElementById('warType').value : 'N/A';
+            rawOut += `**TYPE:** WARRANT - ${wType.toUpperCase()}\n`;
+        } else {
+            rawOut += `**TYPE:** ${currentTab}\n`;
+        }
+        
         rawOut += `**OFFICER:** ${offName}\n`;
         rawOut += `**UNIT:** ${unitID}\n`;
         rawOut += `**TIMESTAMP:** ${timestamp}\n`;
         rawOut += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
         
-        rawOut += `**NARRATIVE LOG:**\n`;
-        if(currentTab === 'INCIDENT' || currentTab === 'MISSING') {
-            const people = document.querySelectorAll('#peopleList > div');
-            if(people.length > 0) {
-                rawOut += `*INVOLVED: `; let pArray = [];
-                people.forEach(row => { const pType = row.querySelector('.p-type').value; const pName = row.querySelector('.p-name').value || "UNKNOWN"; pArray.push(`[${pType}] ${pName}`); });
-                rawOut += pArray.join(', ') + `*\n`;
+        if(currentTab === 'WARRANT') {
+            const wTarget = document.getElementById('warTarget') ? document.getElementById('warTarget').value || 'UNSTATED' : 'UNSTATED';
+            const wCharges = document.getElementById('warCharges') ? document.getElementById('warCharges').value || 'NONE' : 'NONE';
+            const wReason = document.getElementById('warReason') ? document.getElementById('warReason').value || 'NONE' : 'NONE';
+
+            rawOut += `**TARGET / LOCATION:**\n*${wTarget}*\n\n`;
+            
+            rawOut += `**CHARGES:**\n`;
+            if (wCharges.trim()) {
+                wCharges.split('\n').filter(l => l.trim() !== '').forEach(line => { 
+                    let cl = line.trim(); 
+                    rawOut += cl.startsWith('-') ? `${cl}\n` : `- ${cl}\n`; 
+                });
+            } else {
+                rawOut += `- None listed.\n`;
             }
-            if(currentTab === 'MISSING') { const loc = document.getElementById('lastLoc'); rawOut += `*LAST KNOWN LOC: ${loc && loc.value ? loc.value : "Unknown"}*\n`; }
+            rawOut += `\n`;
+            
+            rawOut += `**REASON / PROBABLE CAUSE:**\n`;
+            if (wReason.trim()) {
+                wReason.split('\n').filter(l => l.trim() !== '').forEach(line => { rawOut += `*${line.trim()}*\n`; });
+            } else {
+                rawOut += `*None listed.*\n`;
+            }
+            rawOut += `\n`;
+            
+        } else {
+            rawOut += `**NARRATIVE LOG:**\n`;
+            if(currentTab === 'INCIDENT' || currentTab === 'MISSING') {
+                const people = document.querySelectorAll('#peopleList > div');
+                if(people.length > 0) {
+                    rawOut += `*INVOLVED: `; let pArray = [];
+                    people.forEach(row => { const pType = row.querySelector('.p-type').value; const pName = row.querySelector('.p-name').value || "UNKNOWN"; pArray.push(`[${pType}] ${pName}`); });
+                    rawOut += pArray.join(', ') + `*\n`;
+                }
+                if(currentTab === 'MISSING') { const loc = document.getElementById('lastLoc'); rawOut += `*LAST KNOWN LOC: ${loc && loc.value ? loc.value : "Unknown"}*\n`; }
+            }
+            
+            let narLines = nar ? nar.split('\n') : ["No historical event logged."];
+            narLines.forEach(line => { if(line.trim() !== '') { rawOut += `*${line.trim()}*\n`; } else { rawOut += `\n`; } });
+            rawOut += `\n`;
+            
+            rawOut += `**EVIDENCE STORE:**\n`;
+            if (evi.trim()) {
+                evi.split('\n').filter(l => l.trim() !== '').forEach(line => { let cl = line.trim(); rawOut += cl.startsWith('-') ? `${cl}\n` : `- ${cl}\n`; });
+            } else { rawOut += `- None logged.\n`; }
+            rawOut += `\n`;
+            
+            rawOut += `**ACTIONS INITIATED:**\n${checks.join(' | ') || "None."}\n\n`;
+            rawOut += `**ADDITIONAL PROCEDURES:**\n${add || "None."}\n\n`;
+        }
+
+        rawOut += `**SUPERVISOR SIGNATURE:** __________________________\n\n`;
+        if (currentTab === 'WARRANT') {
+            rawOut += `**JUDGE SIGNATURE:** _______________________________\n\n`;
         }
         
-        let narLines = nar ? nar.split('\n') : ["No historical event logged."];
-        narLines.forEach(line => { if(line.trim() !== '') { rawOut += `*${line.trim()}*\n`; } else { rawOut += `\n`; } });
-        rawOut += `\n`;
-        
-        rawOut += `**EVIDENCE STORE:**\n`;
-        if (evi.trim()) {
-            evi.split('\n').filter(l => l.trim() !== '').forEach(line => { let cl = line.trim(); rawOut += cl.startsWith('-') ? `${cl}\n` : `- ${cl}\n`; });
-        } else { rawOut += `- None logged.\n`; }
-        rawOut += `\n`;
-        
-        rawOut += `**ACTIONS INITIATED:**\n${checks.join(' | ') || "None."}\n\n`;
-        rawOut += `**ADDITIONAL PROCEDURES:**\n${add || "None."}\n\n`;
         rawOut += `*** END OF REPORT ***`;
 
         globalRawMarkdownOutput = rawOut;
